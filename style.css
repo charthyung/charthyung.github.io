@@ -57,7 +57,7 @@ h2 { margin: 0; font-size: 26px; line-height: 1.25; font-weight: 800; letter-spa
 small { font-size: 13px; }
 
 /* ── 3. 상담소 (맨 아래) ── */
-.consult { padding-top: 48px; padding-bottom: 56px; border-top: 1px solid var(--line); }
+.consult { padding-top: 8px; }
 .promise { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 6px; font-size: 16px; color: var(--sub); }
 .promise li { display: flex; align-items: center; gap: 10px; }
 .promise li::before { content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
@@ -129,15 +129,6 @@ input::placeholder, textarea::placeholder { color: #575e6c; font-weight: 400; op
 .fine { margin: 14px 0 0; font-size: 13px; color: var(--faint); }
 
 /* ── 2. 계산기 ── */
-.calc { padding-top: 56px; padding-bottom: 56px; border-top: 1px solid var(--line); }
-.tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 24px; }
-.tabs [role="tab"] {
-  height: 44px; padding: 0 4px; min-width: 0;
-  border: 1px solid var(--line2); border-radius: 10px; background: transparent;
-  color: var(--sub); font-size: 15px; font-weight: 700; white-space: nowrap; cursor: pointer;
-  transition: background .15s, color .15s, border-color .15s;
-}
-.tabs [role="tab"][aria-selected="true"] { background: var(--text); border-color: var(--text); color: var(--bg); }
 .panel { margin-top: 28px; }
 .panel[hidden] { display: none; }
 .desc { margin: 0 0 16px; font-size: 16px; color: var(--text); font-weight: 700; }
@@ -197,7 +188,7 @@ a.sig-chip:active { background: #1a1e28; }
 .sig-foot { margin: 14px 0 0; font-size: 13px; color: var(--faint); }
 
 /* ── 4. 맨 아래 ── */
-.foot { display: grid; gap: 18px; padding-top: 48px; padding-bottom: calc(56px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); text-align: center; }
+.foot { display: grid; gap: 10px; padding-top: 28px; padding-bottom: 28px; margin-top: 40px; border-top: 1px solid var(--line); text-align: center; }
 .btn-zetro {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
   min-height: 72px; padding: 12px 16px; border-radius: 16px;
@@ -222,20 +213,11 @@ a.sig-chip:active { background: #1a1e28; }
 
 /* ── 머리줄 아래 얇은 상담소 버튼 ── */
 html { scroll-behavior: smooth; }
-#consult, #answers { scroll-margin-top: 8px; }
-.consult-bar-wrap { padding-bottom: 4px; }
-.consult-bar {
-  display: block; height: 36px; line-height: 34px; padding: 0 12px; border-radius: 10px;
-  border: 1px solid rgba(245, 196, 81, .24); background: rgba(245, 196, 81, .08); color: var(--gold);
-  font-size: clamp(13px, 3.7vw, 14px); font-weight: 700; text-align: center; text-decoration: none;
-  white-space: nowrap; text-wrap: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.consult-bar:active { background: rgba(245, 196, 81, .16); }
 .help { margin: 0; font-size: 13px; color: var(--faint); }
 .cf-msg.ok { white-space: pre-line; line-height: 1.6; }
 
 /* ── 4. 내 답 찾기 ── */
-.answers { padding-top: 48px; padding-bottom: 56px; border-top: 1px solid var(--line); }
+.answers { padding-top: 8px; }
 .af { display: flex; gap: 8px; margin-top: 16px; }
 .af input { flex: 1 1 auto; min-width: 0; }
 .btn-find { flex: none; height: 52px; padding: 0 22px; border: 0; border-radius: 12px; background: var(--text); color: var(--bg); font-size: 16px; font-weight: 800; cursor: pointer; }
@@ -257,14 +239,61 @@ html { scroll-behavior: smooth; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
+/* ══ 앱 탭 구조 ══ 폰 = 화면 아래 고정 탭바 · 넓은 화면(720+) = 머리줄 아래 탭. 보일 탭은 html[data-tab] 하나로 정함 */
+.js .tab { display: none; }
+.js[data-tab="signals"] #tab-signals, .js[data-tab="calc"] #tab-calc,
+.js[data-tab="consult"] #tab-consult, .js[data-tab="answers"] #tab-answers { display: block; }
+.tab { padding-bottom: 8px; }
+.tab-title { font-size: 22px; }
+.tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 0 max(8px, env(safe-area-inset-left)) env(safe-area-inset-bottom) max(8px, env(safe-area-inset-right));
+  background: rgba(11, 13, 18, .94); border-top: 1px solid var(--line2);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+}
+.tabbar a {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  height: 58px; min-width: 0; color: var(--faint); text-decoration: none; font-size: 12px; font-weight: 700;
+  -webkit-tap-highlight-color: transparent;
+}
+.tabbar .ti { font-size: 20px; line-height: 1; filter: grayscale(1); opacity: .55; }
+.tabbar a[aria-current="page"] { color: var(--gold); }
+.tabbar a[aria-current="page"] .ti { filter: none; opacity: 1; }
+body { padding-bottom: calc(58px + env(safe-area-inset-bottom)); }
+
+/* 시그널 탭: 물타기 미니 계산기 + 실시간 버튼 */
+.mini { margin-top: 4px; }
+.mini-panel { margin-top: 0; padding-top: 14px; border-top: 1px solid var(--line); }
+.mini-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.mini-title { font-size: 17px; font-weight: 800; }
+.mini-more { flex: none; font-size: 14px; font-weight: 700; color: var(--purple); text-decoration: none; }
+.home-cta { margin-top: 24px; }
+
+/* 계산기 탭: 하위 탭 = 카드(아이콘 + 이름 + 한 줄 설명) */
+.subtabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 16px; }
+.subtabs [role="tab"] {
+  display: grid; grid-template-columns: 26px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 8px; row-gap: 2px; align-items: center;
+  min-width: 0; padding: 10px 12px; text-align: left; cursor: pointer;
+  border: 1px solid var(--line2); border-radius: 12px; background: var(--bg2); color: var(--text);
+  transition: border-color .15s, background .15s;
+}
+.st-i { grid-row: 1 / 3; font-size: 20px; line-height: 1; }
+.st-t { font-size: 15px; font-weight: 800; white-space: nowrap; text-wrap: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.st-d { font-size: 12px; font-weight: 400; color: var(--faint); white-space: nowrap; text-wrap: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.subtabs [role="tab"][aria-selected="true"] { border-color: rgba(245, 196, 81, .7); background: rgba(245, 196, 81, .08); }
+.subtabs [role="tab"][aria-selected="true"] .st-d { color: var(--sub); }
+
+/* 상담소 탭: 접수 안내 */
+.guide { margin-top: 28px; padding: 16px 18px; border-radius: 14px; background: var(--bg2); border: 1px solid var(--line); }
+.guide-title { margin: 0 0 8px; font-size: 15px; font-weight: 800; }
+.steps { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 14px; color: var(--sub); }
+.steps b { color: var(--text); font-weight: 700; }
+.steps a { color: var(--gold); font-weight: 700; }
+
 /* 폰: 첫 화면(390×844 · 360×780)에 시그널 칩 + 물타기 입력 4칸 + 결과 2줄이 스크롤 없이 들어가게 */
 @media (max-width: 719px) {
   .top { min-height: 52px; }
-  .calc { padding-top: 16px; padding-bottom: 44px; }
-  .calc > h2 { display: inline; font-size: 17px; }
-  .calc > .sec-sub { display: inline; margin: 0 0 0 8px; font-size: 13px; color: var(--faint); }
-  .tabs { margin-top: 12px; gap: 6px; }
-  .tabs [role="tab"] { height: 40px; font-size: 14px; }
   .panel { margin-top: 14px; }
   .desc { margin-bottom: 10px; font-size: 14px; }
   .seg-side { height: 40px; max-width: 168px; margin-bottom: 12px; padding: 3px; }
@@ -283,8 +312,17 @@ html { scroll-behavior: smooth; }
 }
 
 @media (min-width: 720px) {
-  .consult { padding-top: 56px; }
-  .signals { padding-top: 32px; padding-bottom: 56px; }
+  .tabbar {
+    position: sticky; top: 0; bottom: auto; left: auto; right: auto; z-index: 40;
+    width: 100%; max-width: 640px; margin: 0 auto 8px; padding: 6px 20px; gap: 6px;
+    border-top: 0; border-bottom: 1px solid var(--line); border-radius: 0;
+  }
+  .tabbar a { flex-direction: row; gap: 8px; height: 44px; border-radius: 10px; font-size: 15px; color: var(--sub); }
+  .tabbar .ti { font-size: 18px; }
+  .tabbar a[aria-current="page"] { background: var(--text); color: var(--bg); }
+  body { padding-bottom: 0; }
+  .subtabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .signals { padding-top: 24px; padding-bottom: 8px; }
   .signals h2 { font-size: 26px; }
   .sig-head-r, .sig-chips, .sig-foot-m { display: none; }
   .sig-list, .sig-foot { display: block; }

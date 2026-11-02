@@ -20,6 +20,16 @@
 <meta property="og:image:alt" content="차트보는형 도구함 — 익명 코인 고민상담소와 계산기 6개">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<script>
+/* 첫 그림 전에 열 탭을 정한다 — #calc-funding 같은 주소로 바로 열기, 깜빡임 없음 */
+(function () {
+  var h = (location.hash || '').slice(1), t = 'signals', d = document.documentElement;
+  if (/^(calc|calc-[a-z]+|avg|breakeven|liq|size|funding|streak)$/.test(h)) t = 'calc';
+  else if (h === 'consult' || h === 'answers') t = h;
+  d.className += ' js';
+  d.setAttribute('data-tab', t);
+})();
+</script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link rel="stylesheet" href="style.css">
@@ -36,11 +46,19 @@
   </a>
   <a class="top-link" href="https://www.threads.com/@charthyung" target="_blank" rel="noopener">@charthyung</a>
 </header>
-<div class="wrap consult-bar-wrap"><a class="consult-bar" href="#consult">🙋 익명 상담소 — 물린 코인 차트 봐 드림 ↓</a></div>
+
+<!-- 탭바: 폰 = 화면 아래 고정 · 넓은 화면 = 위쪽. 탭마다 주소(#signals · #calc · #consult · #answers, 계산기 하위 = #calc-funding 등) -->
+<nav class="tabbar" aria-label="메뉴">
+  <a href="#signals" data-tab="signals"><span class="ti" aria-hidden="true">✨</span><span class="tl">시그널</span></a>
+  <a href="#calc" data-tab="calc"><span class="ti" aria-hidden="true">🧮</span><span class="tl">계산기</span></a>
+  <a href="#consult" data-tab="consult"><span class="ti" aria-hidden="true">🙋</span><span class="tl">상담소</span></a>
+  <a href="#answers" data-tab="answers"><span class="ti" aria-hidden="true">🔎</span><span class="tl">내 답</span></a>
+</nav>
 
 <main>
-  <!-- 1. 이번 주 시그널 잘 뜬 코인 (build_site.py 가 아래 표시 사이를 채움 — 손으로 고치지 말 것) · 폰 = 칩 한 줄, 넓은 화면 = 썸네일 목록 -->
-  <section id="signals" class="signals wrap" aria-labelledby="signals-title">
+  <!-- ✨ 시그널 (첫 화면): 시그널 칩 + 물타기 미니 계산기 + 실시간 버튼 -->
+  <section class="tab" id="tab-signals" data-tab="signals" aria-labelledby="signals-title">
+    <div class="signals wrap">
 <!-- SIGNALS:BEGIN -->
     <div class="sig-head"><h2 id="signals-title">이번 주 시그널 잘 뜬 코인</h2><span class="sig-head-r" aria-hidden="true">4시간 최대</span></div>
     <ul class="sig-chips">
@@ -68,21 +86,47 @@
     </ol>
     <p class="sig-foot">시그널 뜬 뒤 4시간 안 최대 움직임 · 모든 시그널이 이렇게 가진 않음 · 11월 2일 스레드에 올린 것</p>
 <!-- SIGNALS:END -->
+    </div>
+    <div class="mini wrap">
+      <div class="panel mini-panel" id="mini" data-calc="avg">
+        <div class="mini-head"><h2 class="mini-title">💧 물타기 계산기</h2><a class="mini-more" href="#calc">계산기 6개 →</a></div>
+        <div class="seg seg-side" role="radiogroup" aria-label="롱 / 숏">
+          <label><input type="radio" name="mini-side" value="long" checked><span>롱</span></label>
+          <label><input type="radio" name="mini-side" value="short"><span>숏</span></label>
+        </div>
+        <div class="grid2">
+          <label class="field"><span class="label">지금 평단</span><input type="text" inputmode="decimal" data-num data-k="p1" placeholder="예: 100"></label>
+          <label class="field"><span class="label">지금 수량</span><input type="text" inputmode="decimal" data-num data-k="q1" placeholder="예: 10"></label>
+          <label class="field"><span class="label">추가 가격</span><input type="text" inputmode="decimal" data-num data-k="p2" placeholder="예: 80"></label>
+          <label class="field"><span class="label">추가 수량</span><input type="text" inputmode="decimal" data-num data-k="q2" placeholder="예: 10"></label>
+        </div>
+        <div class="out" aria-live="polite">
+          <div class="o-row o-main"><span class="o-k">새 평단</span><output class="o-v" data-o="avg">—</output></div>
+          <div class="o-row o-main"><span class="o-k">본전까지</span><span class="o-vw"><output class="o-v" data-o="be">—</output><small class="o-h" data-o="be_h"></small></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="home-cta wrap">
+      <a class="btn-zetro" href="https://ath.zetro.io/" target="_blank" rel="noopener">
+        <span class="bz-t">시그널 실시간으로 보기</span>
+        <span class="bz-s">ath.zetro.io</span>
+      </a>
+    </div>
   </section>
 
-  <!-- 2. 계산기 6개 (폰 첫 화면에 물타기 입력 4칸 + 결과 2줄까지 보이게) -->
-  <section id="calc" class="calc wrap" aria-labelledby="calc-title">
-    <h2 id="calc-title">계산기</h2>
-    <p class="sec-sub">숫자만 넣으면 바로 계산돼요.</p>
-
-    <div class="tabs" role="tablist" aria-label="계산기 고르기">
-      <button type="button" role="tab" id="t-avg" aria-controls="avg" aria-selected="true">물타기 평단</button>
-      <button type="button" role="tab" id="t-breakeven" aria-controls="breakeven" aria-selected="false" tabindex="-1">본전까지</button>
-      <button type="button" role="tab" id="t-liq" aria-controls="liq" aria-selected="false" tabindex="-1">청산가</button>
-      <button type="button" role="tab" id="t-size" aria-controls="size" aria-selected="false" tabindex="-1">포지션 크기</button>
-      <button type="button" role="tab" id="t-funding" aria-controls="funding" aria-selected="false" tabindex="-1">펀딩비</button>
-      <button type="button" role="tab" id="t-streak" aria-controls="streak" aria-selected="false" tabindex="-1">연패</button>
-    </div>
+  <!-- 🧮 계산기: 6개 = 하위 탭(아이콘 + 한 줄 설명), 누르면 아래에 열림 -->
+  <section class="tab calc" id="tab-calc" data-tab="calc" aria-labelledby="calc-title">
+    <div class="wrap">
+      <h2 id="calc-title" class="tab-title">계산기</h2>
+      <p class="sec-sub">골라서 숫자만 넣으면 바로 계산돼요.</p>
+      <div class="subtabs" role="tablist" aria-label="계산기 고르기">
+        <button type="button" role="tab" id="t-avg" aria-controls="avg" aria-selected="true"><span class="st-i" aria-hidden="true">💧</span><span class="st-t">물타기 평단</span><span class="st-d">더 사면 새 평단은?</span></button>
+        <button type="button" role="tab" id="t-breakeven" aria-controls="breakeven" aria-selected="false" tabindex="-1"><span class="st-i" aria-hidden="true">⚖️</span><span class="st-t">본전까지</span><span class="st-d">잃은 만큼 되찾으려면</span></button>
+        <button type="button" role="tab" id="t-liq" aria-controls="liq" aria-selected="false" tabindex="-1"><span class="st-i" aria-hidden="true">⚠️</span><span class="st-t">청산가</span><span class="st-d">격리 대략 청산 위치</span></button>
+        <button type="button" role="tab" id="t-size" aria-controls="size" aria-selected="false" tabindex="-1"><span class="st-i" aria-hidden="true">📏</span><span class="st-t">포지션 크기</span><span class="st-d">손절 기준 진입 크기</span></button>
+        <button type="button" role="tab" id="t-funding" aria-controls="funding" aria-selected="false" tabindex="-1"><span class="st-i" aria-hidden="true">⏱️</span><span class="st-t">펀딩비</span><span class="st-d">들고 있는 동안 비용</span></button>
+        <button type="button" role="tab" id="t-streak" aria-controls="streak" aria-selected="false" tabindex="-1"><span class="st-i" aria-hidden="true">📉</span><span class="st-t">연패</span><span class="st-d">연속 손절하면 시드는</span></button>
+      </div>
 
     <!-- 물타기 평단 -->
     <div class="panel" id="avg" role="tabpanel" aria-labelledby="t-avg" data-calc="avg">
@@ -191,10 +235,12 @@
       </div>
       <p class="note">매번 남은 시드의 같은 %를 잃는다고 보고 계산</p>
     </div>
+    </div>
   </section>
 
-  <!-- 3. 익명 코인 고민상담소 (접수 열릴 때까지 맨 아래) -->
-  <section id="consult" class="consult wrap" aria-labelledby="consult-title">
+  <!-- 🙋 상담소: 폼(별명 포함) + 접수 안내 -->
+  <section class="tab consult" id="tab-consult" data-tab="consult" aria-labelledby="consult-title">
+    <div class="wrap">
     <p class="eyebrow">익명 코인 고민상담소</p>
     <h1 id="consult-title">물린 코인,<br>익명으로 차트 봐 드림</h1>
     <ul class="promise">
@@ -234,7 +280,7 @@
       <div class="field">
         <label for="cf-nick">답 찾을 때 쓸 별명</label>
         <input id="cf-nick" name="nick" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="12" placeholder="예: 물린고양이" required aria-describedby="cf-nick-help">
-        <p class="help" id="cf-nick-help">한글·영문·숫자 2~12자, 띄어쓰기 없이 · 이 별명으로 아래 '내 답 찾기'에서 찾아요</p>
+        <p class="help" id="cf-nick-help">한글·영문·숫자 2~12자, 띄어쓰기 없이 · 이 별명으로 '🔎 내 답' 탭에서 찾아요</p>
       </div>
       <div class="hp" aria-hidden="true">
         <label for="cf-website">이 칸은 비워 두세요</label>
@@ -245,10 +291,20 @@
       <button type="submit" class="btn-primary" id="cf-submit">익명으로 보내기</button>
     </form>
     <p class="fine">차트에 뜬 것만 보여 드려요. 매수·매도 추천 아님.</p>
+      <div class="guide">
+        <h3 class="guide-title">접수 안내</h3>
+        <ol class="steps">
+          <li>코인 · 롱/숏 · 평단과 <b>별명</b>을 적어 보내요</li>
+          <li>1~2일 안에 스레드 <b>@charthyung</b>과 <a href="#answers">🔎 내 답</a> 탭에 답이 올라와요</li>
+          <li>사연이 많으면 골라서 답해요 · 이름·연락처는 안 받아요</li>
+        </ol>
+      </div>
+    </div>
   </section>
 
-  <!-- 4. 내 답 찾기 (answers.json — add_answer.py 로만 추가) -->
-  <section id="answers" class="answers wrap" aria-labelledby="answers-title">
+  <!-- 🔎 내 답: 별명 검색 + 최근 답변 (answers.json — add_answer.py 로만 추가) -->
+  <section class="tab answers" id="tab-answers" data-tab="answers" aria-labelledby="answers-title">
+    <div class="wrap">
     <h2 id="answers-title">내 답 찾기</h2>
     <p class="sec-sub">접수할 때 쓴 별명으로 찾아요.</p>
     <form id="af" class="af" role="search" autocomplete="off">
@@ -259,15 +315,11 @@
     <div id="af-result" class="ans-result" aria-live="polite"></div>
     <h3 class="ans-title">최근 답변</h3>
     <div id="ans-recent" class="ans-list"><p class="ans-empty">불러오는 중…</p></div>
+    </div>
   </section>
 </main>
 
-<!-- 4. 맨 아래 -->
 <footer class="foot wrap">
-  <a class="btn-zetro" href="https://ath.zetro.io/" target="_blank" rel="noopener">
-    <span class="bz-t">시그널 실시간으로 보기</span>
-    <span class="bz-s">ath.zetro.io</span>
-  </a>
   <a class="threads" href="https://www.threads.com/@charthyung" target="_blank" rel="noopener">스레드 @charthyung</a>
   <p class="disclaimer">투자 권유 아님 · 계산은 참고용</p>
 </footer>

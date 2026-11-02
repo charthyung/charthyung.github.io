@@ -222,49 +222,75 @@
     run();
   });
 
-  /* ───────── 탭 (주소 #liq 처럼 바로 열기) ───────── */
-  var tabs = $$('[role="tab"]');
-  function selectTab(id) {
-    var found = false;
-    tabs.forEach(function (t) {
+  /* ───────── 앱 탭: ✨시그널 · 🧮계산기 · 🙋상담소 · 🔎내 답 ─────────
+     주소: #signals · #calc · #consult · #answers · 계산기 하위 = #calc-avg … #calc-streak (예전 #funding 도 받음)
+     탭 이동 = 주소(hash) 바뀜 → 뒤로 가기가 탭 이동. 화면을 다시 불러오지 않고 보이기·숨기기만. */
+  var TABS = ['signals', 'calc', 'consult', 'answers'];
+  var SUBS = ['avg', 'breakeven', 'liq', 'size', 'funding', 'streak'];
+  var TITLES = { signals: '차트보는형 도구함', calc: '계산기 · 차트보는형 도구함', consult: '익명 상담소 · 차트보는형 도구함', answers: '내 답 찾기 · 차트보는형 도구함' };
+  var root = document.documentElement;
+  var subBtns = $$('.subtabs [role="tab"]');
+  var lastSub = 'avg';
+  function selectSub(id) {
+    if (SUBS.indexOf(id) < 0) id = 'avg';
+    subBtns.forEach(function (t) {
       var on = t.getAttribute('aria-controls') === id;
-      if (on) found = true;
       t.setAttribute('aria-selected', on ? 'true' : 'false');
       t.tabIndex = on ? 0 : -1;
       var panel = document.getElementById(t.getAttribute('aria-controls'));
       if (panel) panel.hidden = !on;
     });
-    return found;
+    lastSub = id;
   }
-  tabs.forEach(function (t, i) {
+  function parseHash() {
+    var h = '';
+    try { h = decodeURIComponent((location.hash || '').slice(1)); } catch (e) { h = ''; }
+    if (TABS.indexOf(h) >= 0) return { tab: h };
+    if (/^calc-/.test(h) && SUBS.indexOf(h.slice(5)) >= 0) return { tab: 'calc', sub: h.slice(5) };
+    if (SUBS.indexOf(h) >= 0) return { tab: 'calc', sub: h, fix: '#calc-' + h };      // 예전 주소
+    return { tab: 'signals' };
+  }
+  function route(first) {
+    var r = parseHash();
+    var prev = root.getAttribute('data-tab');
+    root.setAttribute('data-tab', r.tab);
+    $$('.tabbar a[data-tab]').forEach(function (a) {
+      if (a.getAttribute('data-tab') === r.tab) a.setAttribute('aria-current', 'page');
+      else a.removeAttribute('aria-current');
+    });
+    if (r.tab === 'calc') selectSub(r.sub || lastSub);
+    if (r.fix) { try { history.replaceState(null, '', r.fix); } catch (e) { /* 파일로 열 때 */ } }
+    document.title = TITLES[r.tab];
+    if (first !== true && prev !== r.tab) window.scrollTo(0, 0);
+  }
+  subBtns.forEach(function (t, i) {
     t.addEventListener('click', function () {
       var id = t.getAttribute('aria-controls');
-      selectTab(id);
-      try { history.replaceState(null, '', '#' + id); } catch (e) { /* 파일로 열 때 */ }
+      selectSub(id);
+      try { history.replaceState(null, '', '#calc-' + id); } catch (e) { /* 파일로 열 때 */ }
     });
     t.addEventListener('keydown', function (e) {
       var j = null;
-      if (e.key === 'ArrowRight') j = (i + 1) % tabs.length;
-      else if (e.key === 'ArrowLeft') j = (i - 1 + tabs.length) % tabs.length;
+      if (e.key === 'ArrowRight') j = (i + 1) % subBtns.length;
+      else if (e.key === 'ArrowLeft') j = (i - 1 + subBtns.length) % subBtns.length;
       else if (e.key === 'Home') j = 0;
-      else if (e.key === 'End') j = tabs.length - 1;
+      else if (e.key === 'End') j = subBtns.length - 1;
       if (j === null) return;
       e.preventDefault();
-      tabs[j].click();
-      tabs[j].focus();
+      subBtns[j].click();
+      subBtns[j].focus();
     });
   });
-  function fromHash() {
-    var id = (location.hash || '').slice(1);
-    if (!id) return;
-    var el = document.getElementById(id);
-    if (el && el.getAttribute('role') === 'tabpanel' && selectTab(id)) {
-      var sec = document.getElementById('calc');
-      if (sec) sec.scrollIntoView();
-    }
-  }
-  fromHash();
-  window.addEventListener('hashchange', fromHash);
+  $$('.tabbar a[data-tab]').forEach(function (a) {     // 지금 탭을 또 누르면 맨 위로
+    a.addEventListener('click', function (e) {
+      if (a.getAttribute('data-tab') === root.getAttribute('data-tab') && ('#' + a.getAttribute('data-tab')) === location.hash) {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  });
+  window.addEventListener('hashchange', route);
+  route(true);
 
   /* ───────── 익명 상담 폼 ───────── */
   var form = $('#cf');
