@@ -255,8 +255,7 @@ html { scroll-behavior: smooth; }
 .ib-bar.purple { background: linear-gradient(90deg, rgba(167, 139, 250, .45), var(--purple)); }
 .ib.done .ib-bar { animation: none; }
 .ib-n { font-size: 11px; font-weight: 700; color: var(--faint); white-space: nowrap; text-wrap: nowrap; line-height: 1.1; }
-.ib-pct { min-width: 60px; text-align: right; font-size: 19px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; white-space: nowrap; text-wrap: nowrap; }
-.ib-row.first .ib-pct { font-size: 23px; }
+.ib-pct { width: 96px; text-align: right; font-size: 20px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; white-space: nowrap; text-wrap: nowrap; }
 .ib-row.none .ib-name, .ib-empty { color: #4d5361; }
 .ib-empty { font-size: 13px; font-weight: 700; white-space: nowrap; text-wrap: nowrap; }
 @keyframes ib-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
