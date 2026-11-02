@@ -480,3 +480,24 @@ body { padding-bottom: calc(58px + env(safe-area-inset-bottom)); }
 .case-p { margin: -6px 0 0; padding: 0 14px 10px; font-size: 12px; line-height: 1.45; color: var(--sub); font-variant-numeric: tabular-nums; }
 .case-f { margin: 0; padding: 0 14px 12px; font-size: 12px; color: var(--faint); }
 .case.mine .case-a { padding-bottom: 6px; }
+
+/* 11/03 폰도 탭바를 위로 — 아이폰 사파리의 떠 있는 아래 도구 막대(뒤로·공유·책갈피)와 겹친다는 사용자 지적. 넓은 화면과 같은 '머리줄 아래 붙는 탭' */
+.tabbar {
+  position: sticky; top: 0; bottom: auto; left: auto; right: auto; z-index: 40;
+  width: 100%; max-width: 640px; margin: 0 auto 8px; gap: 6px;
+  padding: 6px max(12px, env(safe-area-inset-left)) 6px max(12px, env(safe-area-inset-right));
+  border-top: 0; border-bottom: 1px solid var(--line); border-radius: 0;
+}
+.tabbar a { flex-direction: row; gap: 6px; height: 40px; border-radius: 10px; font-size: 13px; color: var(--sub); }
+.tabbar .ti { font-size: 16px; }
+.tabbar a[aria-current="page"] { background: var(--text); color: var(--bg); }
+html { scroll-padding-bottom: 0; scroll-padding-top: 60px; }
+body { padding-bottom: env(safe-area-inset-bottom); }
+.signals, .calc > .wrap, .consult > .wrap { padding-top: 10px; }
+.tabbar { margin-bottom: 4px; }
+@media (min-width: 720px) {
+  .tabbar { padding: 6px 20px; margin-bottom: 8px; }
+  .tabbar a { height: var(--h-ctl); font-size: 15px; gap: 8px; }
+  .tabbar .ti { font-size: 20px; }
+  .signals, .calc > .wrap, .consult > .wrap { padding-top: 24px; }
+}
