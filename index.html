@@ -32,7 +32,7 @@
 </script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="style.css?v=1102b">
+<link rel="stylesheet" href="style.css?v=1102c">
 </head>
 <body>
 <svg width="0" height="0" class="sprite" aria-hidden="true" focusable="false">
@@ -85,68 +85,52 @@
   </section>
 
   <!-- 🧮 계산기: 물타기 · 본전까지 · 청산가 (포지션 크기·펀딩비·연패는 _보관\계산기3개_… 에) -->
+  <!-- 2. 계산기: A3 '진짜 LCD 계산기' (2026-11-02) — 액정(결과) · 레지스터 칸(진짜 input, 폰 키보드 대신 키패드) · 기능 키 · 4×4 키패드
+       칸·계산은 예전과 같음: 물타기(지금 평단·수량·추가 가격·수량) / 본전까지(손실률) / 청산가(진입가·레버리지·유지증거금률). 예전 판 = _보관\계산기_카드탭판_1102 -->
   <section class="tab calc" id="tab-calc" data-tab="calc" aria-labelledby="calc-title">
     <div class="wrap">
-      <h2 id="calc-title" class="tab-title">계산기</h2>
-      <div class="subtabs" role="tablist" aria-label="계산기 고르기">
-        <button type="button" role="tab" id="t-avg" aria-controls="avg" aria-selected="true"><span class="st-i" aria-hidden="true">💧</span><span class="st-t">물타기</span><span class="st-d">새 평단</span></button>
-        <button type="button" role="tab" id="t-breakeven" aria-controls="breakeven" aria-selected="false" tabindex="-1"><span class="st-i" aria-hidden="true">⚖️</span><span class="st-t">본전까지</span><span class="st-d">필요한 상승률</span></button>
-        <button type="button" role="tab" id="t-liq" aria-controls="liq" aria-selected="false" tabindex="-1"><span class="st-i" aria-hidden="true">⚠️</span><span class="st-t">청산가</span><span class="st-d">격리 대략값</span></button>
+      <h2 id="calc-title" class="sr-only">계산기</h2>
+      <div class="dev a3" id="calcdev" data-mode="avg" data-side="long">
+        <div class="bezel" aria-hidden="true"><div class="lcd">
+          <div class="l1"><span class="st" id="lcd-l1">물타기 · 롱</span><span class="extag" id="lcd-ex">예시</span></div>
+          <div class="l2"><span class="lab" id="lcd-lab">새 평단</span><span class="num" id="lcd-num"><span class="gh" id="lcd-gh">88.88</span><span class="v" id="lcd-v">90.00</span></span></div>
+          <div class="l3"><span class="lab" id="lcd-k3">본전까지</span><span class="be" id="lcd-v3">+12.5%</span></div>
+        </div></div>
+        <div class="rgs" id="avg" role="tabpanel" aria-labelledby="t-avg">
+          <label class="rg on"><span class="rl">지금 평단</span><input class="rv" type="text" inputmode="none" enterkeyhint="next" data-num data-k="p1" maxlength="20" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="100"></label>
+          <label class="rg"><span class="rl">지금 수량</span><input class="rv" type="text" inputmode="none" enterkeyhint="next" data-num data-k="q1" maxlength="20" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="10"></label>
+          <label class="rg"><span class="rl">추가 가격</span><input class="rv" type="text" inputmode="none" enterkeyhint="next" data-num data-k="p2" maxlength="20" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="80"></label>
+          <label class="rg"><span class="rl">추가 수량</span><input class="rv" type="text" inputmode="none" enterkeyhint="next" data-num data-k="q2" maxlength="20" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="10"></label>
+          <p class="sr-only" aria-live="polite">새 평단 <output data-o="avg">—</output>, 본전까지 <output data-o="be">—</output> <span data-o="be_h"></span>, 총 수량 <output data-o="qty">—</output>, 평단 변화 <output data-o="chg">—</output></p>
+        </div>
+        <div class="rgs" id="breakeven" role="tabpanel" aria-labelledby="t-breakeven" hidden>
+          <label class="rg wide u"><span class="rl">손실률</span><input class="rv" type="text" inputmode="none" enterkeyhint="next" data-num data-k="loss" maxlength="12" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="30"><span class="ru" aria-hidden="true">%</span></label>
+          <p class="sr-only" aria-live="polite">필요한 상승률 <output data-o="need">—</output> <span data-o="need_h"></span></p>
+        </div>
+        <div class="rgs" id="liq" role="tabpanel" aria-labelledby="t-liq" hidden>
+          <label class="rg wide"><span class="rl">진입가</span><input class="rv" type="text" inputmode="none" enterkeyhint="next" data-num data-k="e" maxlength="20" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="100"></label>
+          <label class="rg u"><span class="rl">레버리지</span><input class="rv" type="text" inputmode="none" enterkeyhint="next" data-num data-k="lev" maxlength="8" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="10"><span class="ru" aria-hidden="true">배</span></label>
+          <label class="rg u"><span class="rl">유지증거금률</span><input class="rv" type="text" inputmode="none" enterkeyhint="next" data-num data-k="mm" maxlength="8" autocomplete="off" autocorrect="off" spellcheck="false" value="0.5" data-default="0.5"><span class="ru" aria-hidden="true">%</span></label>
+          <p class="sr-only" aria-live="polite">청산가 대략 <output data-o="liq">—</output>, 진입가에서 <output data-o="dist">—</output> <span data-o="dist_h"></span></p>
+        </div>
+        <div class="fn">
+          <div class="modes" role="tablist" aria-label="계산기 고르기">
+            <button type="button" class="m" role="tab" id="t-avg" aria-controls="avg" aria-selected="true"><i class="led" aria-hidden="true"></i><span>물타기</span></button>
+            <button type="button" class="m" role="tab" id="t-breakeven" aria-controls="breakeven" aria-selected="false" tabindex="-1"><i class="led" aria-hidden="true"></i><span>본전까지</span></button>
+            <button type="button" class="m" role="tab" id="t-liq" aria-controls="liq" aria-selected="false" tabindex="-1"><i class="led" aria-hidden="true"></i><span>청산가</span></button>
+          </div>
+          <button type="button" class="sw" id="calc-side" role="switch" aria-checked="false" aria-label="롱 / 숏 (켜면 숏)"><span class="sw-t" aria-hidden="true"><b>롱</b><b>숏</b></span><span class="slot" aria-hidden="true"><span class="knob"></span></span></button>
+        </div>
+        <div class="pad" role="group" aria-label="키패드">
+          <button type="button" class="k n" data-key="7">7</button><button type="button" class="k n" data-key="8">8</button><button type="button" class="k n" data-key="9">9</button><button type="button" class="k f" data-key="C" aria-label="칸 비우기">C</button>
+          <button type="button" class="k n" data-key="4">4</button><button type="button" class="k n" data-key="5">5</button><button type="button" class="k n" data-key="6">6</button><button type="button" class="k f" data-key="bs" aria-label="한 글자 지우기">⌫</button>
+          <button type="button" class="k n" data-key="1">1</button><button type="button" class="k n" data-key="2">2</button><button type="button" class="k n" data-key="3">3</button><button type="button" class="k f" data-key="00">00</button>
+          <button type="button" class="k n" data-key="0">0</button><button type="button" class="k n" data-key="." aria-label="소수점">.</button><button type="button" class="k f" data-key="prev" aria-label="이전 칸">이전</button><button type="button" class="k go" data-key="next" aria-label="다음 칸">다음</button>
+        </div>
       </div>
-
-    <!-- 물타기 평단 -->
-    <div class="panel" id="avg" role="tabpanel" aria-labelledby="t-avg" data-calc="avg">
-      <p class="desc">추가로 사면 새 평단과 본전까지 남은 %</p>
-      <div class="seg seg-side" role="radiogroup" aria-label="롱 / 숏">
-        <label><input type="radio" name="avg-side" value="long" checked><span>롱</span></label>
-        <label><input type="radio" name="avg-side" value="short"><span>숏</span></label>
-      </div>
-      <div class="grid2">
-        <label class="field"><span class="label">지금 평단</span><input type="text" inputmode="decimal" data-num data-k="p1" placeholder="예: 100"></label>
-        <label class="field"><span class="label">지금 수량</span><input type="text" inputmode="decimal" data-num data-k="q1" placeholder="예: 10"></label>
-        <label class="field"><span class="label">추가 가격</span><input type="text" inputmode="decimal" data-num data-k="p2" placeholder="예: 80"></label>
-        <label class="field"><span class="label">추가 수량</span><input type="text" inputmode="decimal" data-num data-k="q2" placeholder="예: 10"></label>
-      </div>
-      <div class="out" aria-live="polite">
-        <div class="o-row o-main"><span class="o-k">새 평단</span><output class="o-v" data-o="avg">—</output></div>
-        <div class="o-row o-main"><span class="o-k">본전까지</span><span class="o-vw"><output class="o-v" data-o="be">—</output><small class="o-h" data-o="be_h"></small></span></div>
-        <div class="o-row"><span class="o-k">총 수량</span><output class="o-v sm" data-o="qty">—</output></div>
-        <div class="o-row"><span class="o-k">평단 변화</span><output class="o-v sm" data-o="chg">—</output></div>
-      </div>
-      <p class="note">수수료·펀딩비 빼고 계산</p>
-    </div>
-
-    <!-- 본전까지 -->
-    <div class="panel" id="breakeven" role="tabpanel" aria-labelledby="t-breakeven" data-calc="breakeven" hidden>
-      <p class="desc">잃은 만큼 되찾으려면 얼마나 올라야 하는지</p>
-      <div class="grid2">
-        <label class="field"><span class="label">손실률</span><span class="suffix"><input type="text" inputmode="decimal" data-num data-k="loss" placeholder="예: 30"><span aria-hidden="true">%</span></span></label>
-      </div>
-      <div class="out" aria-live="polite">
-        <div class="o-row o-main"><span class="o-k">필요한 상승률</span><span class="o-vw"><output class="o-v" data-o="need">—</output><small class="o-h" data-o="need_h"></small></span></div>
-      </div>
-      <p class="note">−10% → +11.1% · −50% → +100% · −80% → +400%</p>
-    </div>
-
-    <!-- 청산가 -->
-    <div class="panel" id="liq" role="tabpanel" aria-labelledby="t-liq" data-calc="liq" hidden>
-      <p class="desc">격리 마진에서 대략 어디쯤 청산되는지</p>
-      <div class="seg seg-side" role="radiogroup" aria-label="롱 / 숏">
-        <label><input type="radio" name="liq-side" value="long" checked><span>롱</span></label>
-        <label><input type="radio" name="liq-side" value="short"><span>숏</span></label>
-      </div>
-      <div class="grid2">
-        <label class="field"><span class="label">진입가</span><input type="text" inputmode="decimal" data-num data-k="e" placeholder="예: 100"></label>
-        <label class="field"><span class="label">레버리지</span><span class="suffix"><input type="text" inputmode="decimal" data-num data-k="lev" placeholder="예: 10"><span aria-hidden="true">배</span></span></label>
-        <label class="field"><span class="label">유지증거금률</span><span class="suffix"><input type="text" inputmode="decimal" data-num data-k="mm" value="0.5"><span aria-hidden="true">%</span></span></label>
-      </div>
-      <div class="out" aria-live="polite">
-        <div class="o-row o-main"><span class="o-k">청산가 (대략)</span><output class="o-v" data-o="liq">—</output></div>
-        <div class="o-row o-main"><span class="o-k">진입가에서</span><span class="o-vw"><output class="o-v" data-o="dist">—</output><small class="o-h" data-o="dist_h"></small></span></div>
-      </div>
-      <p class="note">거래소·코인·구간마다 달라요 · 대략값</p>
-    </div>
-
+      <p class="calc-note" data-note="avg">수수료·펀딩비 빼고 계산</p>
+      <p class="calc-note" data-note="breakeven" hidden>−10% → +11.1% · −50% → +100% · −80% → +400%</p>
+      <p class="calc-note" data-note="liq" hidden>거래소·코인·구간마다 달라요 · 대략값</p>
     </div>
   </section>
 
@@ -226,6 +210,6 @@
 
 <noscript><p class="noscript wrap">계산기와 상담 접수는 자바스크립트를 켜야 동작해요.</p></noscript>
 <script src="config.js"></script>
-<script src="app.js"></script>
+<script src="app.js?v=1102c"></script>
 </body>
 </html>

@@ -103,13 +103,19 @@
     });
   });
 
-  /* ───────── 계산기 6개 ───────── */
+  /* ───────── 계산 함수 (물타기 · 본전까지 · 청산가 + 보관 중인 3개) ───────── */
   function vals(p) {
+    if (p._override) return p._override;                 // 계산기 예시 화면: 예시 값으로만 그려 봄(실제 칸은 안 건드림)
     var v = {};
     $$('[data-k]', p).forEach(function (el) { v[el.getAttribute('data-k')] = parseNum(el.value); });
     return v;
   }
-  function side(p) { var r = $('.seg-side input:checked', p); return r ? r.value : 'long'; }
+  function side(p) {
+    var d = document.getElementById('calcdev');
+    if (d && d.contains(p)) return d.getAttribute('data-side') === 'short' ? 'short' : 'long';
+    var r = $('.seg-side input:checked', p);
+    return r ? r.value : 'long';
+  }
   function put(p, key, text, cls) {
     var el = $('[data-o="' + key + '"]', p);
     if (!el) return;
@@ -126,6 +132,7 @@
       if (!/_h$/.test(k)) el.classList.add('muted');      // 빈 결과 '—' 는 흐리게
     });
     if (hintKey && hint) put(p, hintKey, hint, 'warn');
+    p._res = { empty: true, msg: hint || '' };            // 계산기 액정: 대기('--.--') 또는 안내 문구
   }
 
   var CALC = {
@@ -137,17 +144,22 @@
       var avg = (v.p1 * v.q1 + v.p2 * v.q2) / qty;
       var be = (avg / v.p2 - 1) * 100;
       put(p, 'avg', fmtPrice(avg));
+      var beTxt;
       if (Math.abs(be) < 0.005) {
-        put(p, 'be', '0%'); put(p, 'be_h', '추가 가격이 곧 본전');
+        beTxt = '0%';
+        put(p, 'be', beTxt); put(p, 'be_h', '추가 가격이 곧 본전');
       } else if (s === 'long' ? be > 0 : be < 0) {
-        put(p, 'be', fmtPct(be));
+        beTxt = fmtPct(be);
+        put(p, 'be', beTxt);
         put(p, 'be_h', s === 'long' ? '추가 가격에서 이만큼 올라야 본전' : '추가 가격에서 이만큼 내려야 본전');
       } else {
-        put(p, 'be', '이미 넘음');
+        beTxt = '이미 넘음';
+        put(p, 'be', beTxt);
         put(p, 'be_h', s === 'long' ? '추가 가격이 새 평단보다 높아요' : '추가 가격이 새 평단보다 낮아요');
       }
       put(p, 'qty', fmtAmt(qty));
       put(p, 'chg', fmtPct((avg / v.p1 - 1) * 100));
+      p._res = { big: avg, k3: '본전까지', v3: beTxt };
     },
     // 본전까지: 필요한 상승률 = 1 ÷ (1 − 손실률) − 1
     breakeven: function (p) {
@@ -157,6 +169,7 @@
       var need = (1 / (1 - L / 100) - 1) * 100;
       put(p, 'need', fmtPct(need));
       put(p, 'need_h', MINUS + fmtPlain(L, 2) + '% → ' + fmtPct(need));
+      p._res = { big: need, k3: MINUS + fmtPlain(L, 2) + '% 에서 본전까지', v3: fmtPct(need) };
     },
     // 청산가(격리, 대략): 롱 = 진입가 × (1 − 1/레버리지 + 유지증거금률), 숏 = 진입가 × (1 + 1/레버리지 − 유지증거금률)
     liq: function (p) {
@@ -172,6 +185,7 @@
       put(p, 'liq', fmtPrice(liq));
       put(p, 'dist', fmtPct(dist));
       put(p, 'dist_h', bad ? '이 레버리지면 들어가자마자 청산 구간이에요' : (s === 'long' ? '여기까지 내리면 청산' : '여기까지 오르면 청산'), bad ? 'warn' : '');
+      p._res = { big: liq, k3: bad ? '들어가자마자 청산 구간' : '진입가에서', v3: fmtPct(dist), warn: bad };
     },
     // 포지션 크기 = 시드 × 손실% ÷ 손절폭%, 필요한 레버리지 = 포지션 ÷ 시드
     size: function (p) {
@@ -222,6 +236,162 @@
     run();
   });
 
+  /* ───────── 계산기 A3 '진짜 LCD 계산기': 레지스터 칸(진짜 input) + 키패드 ─────────
+     폰: inputmode=none → 시스템 키보드 안 뜸(길게 눌러 붙여넣기는 됨 — 숫자·점만 남김) · PC: 숫자·.·Backspace·Enter(=다음)·Tab 그대로
+     처음(모드의 칸이 다 비었을 때)엔 흐린 예시(placeholder) + 액정 '예시'. 칸에 값이 들어가면 그 모드는 실제 계산만(빈 칸이 있으면 '--.--') */
+  var calcDevice = (function () {
+    var dev = $('#calcdev');
+    if (!dev) return null;
+    var groups = { avg: $('#avg'), breakeven: $('#breakeven'), liq: $('#liq') };
+    var EX = {
+      avg: { long: { p1: '100', q1: '10', p2: '80', q2: '10' }, short: { p1: '100', q1: '10', p2: '120', q2: '10' } },
+      breakeven: { long: { loss: '30' } },
+      liq: { long: { e: '100', lev: '10', mm: '0.5' } }
+    };
+    var LAB = { avg: '새 평단', breakeven: '필요한 상승률 %', liq: '청산가 (대략)' };
+    var K3 = { avg: '본전까지', breakeven: '본전까지', liq: '진입가에서' };
+    var mode = 'avg';
+    var active = { avg: null, breakeven: null, liq: null };
+    var el = { l1: $('#lcd-l1'), ex: $('#lcd-ex'), lab: $('#lcd-lab'), num: $('#lcd-num'), gh: $('#lcd-gh'), v: $('#lcd-v'), k3: $('#lcd-k3'), v3: $('#lcd-v3') };
+    var sideBtn = $('#calc-side');
+    var notes = $$('.calc-note[data-note]');
+    var sideOf = function () { return dev.getAttribute('data-side') === 'short' ? 'short' : 'long'; };
+    var fields = function (m) { return $$('input[data-k]', groups[m || mode]); };
+    var exOf = function (m) { var t = EX[m]; return t[sideOf()] || t.long; };
+    var pristine = function (m) {
+      return fields(m).every(function (f) { var d = f.getAttribute('data-default'); return f.value === '' || (d !== null && f.value === d); });
+    };
+    var trimTo = function (str, keep) {                   // 소수 끝 0 정리 (최소 keep 자리)
+      if (str.indexOf('.') < 0) return str;
+      var parts = str.split('.'), d = parts[1].replace(/0+$/, '');
+      while (d.length < keep) d += '0';
+      return d.length ? parts[0] + '.' + d : parts[0];
+    };
+    var lcdNum = function (x, pct) {                      // 7세그먼트용 — 콤마 없이, 크기에 맞춰 소수 자리
+      var a = Math.abs(x), str;
+      if (!isFinite(a)) return '--.--';
+      if (pct) str = a.toFixed(1);
+      else if (a >= 1000) str = a.toFixed(2);              // 사이트 가격 표기(fmtPrice)와 같은 자리수 — 콤마만 뺌
+      else if (a >= 1) str = trimTo(a.toFixed(4), 2);
+      else if (a === 0) str = '0.00';
+      else str = trimTo(a.toFixed(Math.min(12, Math.max(2, 4 - Math.floor(Math.log10(a))))), 2);
+      return (x < 0 ? '-' : '') + str;
+    };
+    var paint = function (res, ex) {
+      var s = sideOf() === 'long' ? '롱' : '숏';
+      el.l1.textContent = mode === 'avg' ? '물타기 · ' + s : mode === 'breakeven' ? '본전까지' : '청산가 · ' + s + ' · 격리';
+      el.ex.hidden = !ex;
+      el.lab.textContent = LAB[mode];
+      var ok = !!(res && !res.empty);
+      var txt = ok ? lcdNum(res.big, mode === 'breakeven') : (mode === 'breakeven' ? '--.-' : '--.--');
+      el.v.textContent = txt;
+      el.gh.textContent = txt.replace(/[0-9-]/g, '8');      // 꺼진 세그먼트 = 같은 글꼴 같은 자리
+      var n = txt.replace('.', '').length;
+      el.num.style.fontSize = n > 6 ? Math.max(20, Math.floor(46 * 6 / n)) + 'px' : '';
+      el.k3.classList.toggle('warn', (ok && !!res.warn) || !!(res && res.msg));
+      var k3 = ok ? res.k3 : K3[mode];
+      if (mode === 'avg') {                               // 본전까지의 기준 = 추가 가격 ('80에서 본전까지') — 칸이 비면 그냥 '본전까지'
+        var p2 = ex ? exOf('avg').p2 : ((groups.avg.querySelector('[data-k="p2"]') || {}).value || '');
+        if (p2) k3 = (p2.length > 7 ? p2.slice(0, 6).replace(/[,.]$/, '') + '\u2026' : p2) + '에서 본전까지';
+      }
+      if (ok) { el.k3.textContent = k3; el.v3.textContent = res.v3; }
+      else if (res && res.msg) { el.k3.textContent = res.msg; el.v3.textContent = ''; }
+      else { el.k3.textContent = k3; el.v3.textContent = '\u2014'; }
+    };
+    var calc = function () {
+      var p = groups[mode], ex = pristine(mode), t = exOf(mode);
+      fields().forEach(function (f) {
+        var k = f.getAttribute('data-k');
+        if (t[k] != null && f.getAttribute('data-default') === null) f.placeholder = t[k];
+      });
+      if (ex) {
+        var o = {};
+        Object.keys(t).forEach(function (k) { o[k] = parseNum(t[k]); });
+        p._override = o;
+      }
+      try { CALC[mode](p); } catch (e) { blank(p); }
+      p._override = null;
+      paint(p._res, ex);
+    };
+    var toEnd = function (f) { var n = f.value.length; try { f.setSelectionRange(n, n); } catch (e) { /* 일부 브라우저 */ } };
+    var setActive = function (f) {
+      $$('.rg.on', groups[mode]).forEach(function (r) { r.classList.remove('on'); });
+      if (f) f.closest('.rg').classList.add('on');
+      active[mode] = f;
+    };
+    var current = function () {                           // 지금 포커스된 칸이 이 모드 칸이면 그 칸 (focusin 이 안 와도)
+      var list = fields(), ae = document.activeElement, a = active[mode];
+      if (list.indexOf(ae) >= 0) { if (a !== ae) setActive(ae); return ae; }
+      return a && list.indexOf(a) >= 0 ? a : list[0];
+    };
+    var move = function (dir) {                           // 다음/이전 칸 — 끝에서는 처음으로 돌아감
+      var list = fields();
+      if (!list.length) return;
+      var i = list.indexOf(current());
+      var t = list[(i + dir + list.length) % list.length];
+      t.focus({ preventScroll: true });
+      toEnd(t);
+      setActive(t);
+    };
+    var press = function (k) {
+      var f = current();
+      if (!f) return;
+      if (k === 'next' || k === 'prev') { move(k === 'next' ? 1 : -1); return; }
+      var v = f.value;
+      var focused = document.activeElement === f;
+      var a = focused && typeof f.selectionStart === 'number' ? f.selectionStart : v.length;
+      var b = focused && typeof f.selectionEnd === 'number' ? f.selectionEnd : v.length;
+      if (k === 'C') { v = ''; a = 0; }
+      else if (k === 'bs') {
+        if (a !== b) { v = v.slice(0, a) + v.slice(b); }
+        else if (a > 0) { var c = a - 1; if (v.charAt(c) === ',' && c > 0) c -= 1; v = v.slice(0, c) + v.slice(a); a = c; }
+      } else {
+        if (k === '.' && v.indexOf('.') >= 0) return;
+        v = v.slice(0, a) + k + v.slice(b);
+        a += k.length;
+      }
+      f.value = v;
+      if (!focused) f.focus({ preventScroll: true });
+      try { f.setSelectionRange(a, a); } catch (e) { /* 일부 브라우저 */ }
+      setActive(f);
+      f.dispatchEvent(new Event('input', { bubbles: true }));   // 콤마 정리(캡처 단계) → 다시 계산
+    };
+    dev.addEventListener('input', function (e) { if (e.target.matches && e.target.matches('input[data-k]')) calc(); });
+    dev.addEventListener('focusin', function (e) {
+      var t = e.target;
+      if (t.matches && t.matches('input[data-k]')) { setActive(t); setTimeout(function () { toEnd(t); }, 0); }
+    });
+    dev.addEventListener('click', function (e) { var t = e.target; if (t.matches && t.matches('input[data-k]')) { setActive(t); toEnd(t); } });
+    dev.addEventListener('keydown', function (e) {
+      var t = e.target;
+      if (!(t.matches && t.matches('input[data-k]'))) return;
+      if (e.key === 'Enter') { e.preventDefault(); move(e.shiftKey ? -1 : 1); }
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Home' || e.key === 'End') { e.preventDefault(); toEnd(t); }   // 계산기처럼 늘 끝에서 입력
+    });
+    $$('.pad .k', dev).forEach(function (b) {
+      b.addEventListener('mousedown', function (e) { e.preventDefault(); });   // 키를 눌러도 칸 선택(포커스) 유지
+      b.addEventListener('click', function () { press(b.getAttribute('data-key')); });
+    });
+    sideBtn.addEventListener('click', function () {
+      if (sideBtn.disabled) return;
+      var s = sideOf() === 'long' ? 'short' : 'long';
+      dev.setAttribute('data-side', s);
+      sideBtn.setAttribute('aria-checked', s === 'short' ? 'true' : 'false');
+      calc();
+    });
+    var setMode = function (m) {
+      if (!groups[m]) m = 'avg';
+      mode = m;
+      dev.setAttribute('data-mode', m);
+      sideBtn.disabled = m === 'breakeven';
+      notes.forEach(function (n) { n.hidden = n.getAttribute('data-note') !== m; });
+      setActive(current());
+      calc();
+    };
+    setMode('avg');
+    return { mode: setMode };
+  })();
+
   /* ───────── 앱 탭: ✨시그널 · 🧮계산기 · 🙋상담소 ─────────
      주소: #signals · #calc · #consult · 계산기 하위 = #calc-avg · #calc-breakeven · #calc-liq
      예전 주소는 가까운 탭으로: #answers → 상담소(내 답 찾기 펼침) · #calc-funding·#size 등 뺀 계산기 → #calc · #avg 등 → #calc-avg
@@ -231,7 +401,7 @@
   var GONE = ['size', 'funding', 'streak'];            // 2026-11-02 뺀 계산기 (_보관)
   var TITLES = { signals: '차트보는형 도구함', calc: '계산기 · 차트보는형 도구함', consult: '익명 상담소 · 차트보는형 도구함' };
   var root = document.documentElement;
-  var subBtns = $$('.subtabs [role="tab"]');
+  var subBtns = $$('#calcdev [role="tab"]');               // 계산기 모드 키 3개 (물타기 · 본전까지 · 청산가)
   var lastSub = 'avg';
   function selectSub(id) {
     if (SUBS.indexOf(id) < 0) id = 'avg';
@@ -243,6 +413,7 @@
       if (panel) panel.hidden = !on;
     });
     lastSub = id;
+    if (calcDevice) calcDevice.mode(id);
   }
   function parseHash() {
     var h = '';

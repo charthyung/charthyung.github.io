@@ -63,11 +63,10 @@ small { font-size: 13px; }
 .promise li::before { content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
 
 .cf { margin-top: 32px; display: grid; gap: 16px; }
-.row2, .grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px 12px; }
+.row2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px 12px; }
 .field { display: grid; gap: 8px; min-width: 0; align-content: start; }
 .field > label, .label { font-size: 14px; font-weight: 700; color: var(--sub); }
 .label small, .field > label small { margin-left: 4px; font-size: 13px; font-weight: 400; color: var(--faint); }
-.span2 { grid-column: 1 / -1; }
 
 input[type="text"], textarea {
   width: 100%; min-width: 0; margin: 0;
@@ -89,12 +88,6 @@ input::placeholder, textarea::placeholder { color: #575e6c; font-weight: 400; op
 .suffix { position: relative; display: block; min-width: 0; }
 .suffix > input { padding-right: 46px; }
 .suffix > span { position: absolute; right: 14px; top: 0; height: 52px; display: flex; align-items: center; font-size: 15px; font-weight: 700; color: var(--faint); pointer-events: none; }
-.has-sign > input { padding-left: 50px; }
-.sign {
-  position: absolute; left: 6px; top: 6px; width: 40px; height: 40px;
-  border: 0; border-radius: 8px; background: #222735; color: var(--text);
-  font-size: 18px; font-weight: 700; cursor: pointer;
-}
 
 .seg {
   display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
@@ -129,24 +122,7 @@ input::placeholder, textarea::placeholder { color: #575e6c; font-weight: 400; op
 .fine { margin: 14px 0 0; font-size: 13px; color: var(--faint); }
 
 /* ── 2. 계산기 ── */
-.panel { margin-top: 28px; }
-.panel[hidden] { display: none; }
-.desc { margin: 0 0 16px; font-size: 16px; color: var(--text); font-weight: 700; }
-.seg-side { max-width: 220px; margin-bottom: 16px; }
 
-.out { margin-top: 20px; padding: 6px 18px; border-radius: 14px; background: var(--bg2); border: 1px solid var(--line); }
-.o-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
-.o-row:first-child { border-top: 0; }
-.o-k { flex: none; max-width: 48%; font-size: 14px; font-weight: 700; color: var(--sub); }
-.o-vw { display: flex; flex-direction: column; align-items: flex-end; min-width: 0; text-align: right; }
-.o-v { display: block; min-width: 0; font-size: clamp(22px, 6.6vw, 28px); font-weight: 800; letter-spacing: -.02em; line-height: 1.2; font-variant-numeric: tabular-nums; text-align: right; }
-.o-v.sm { font-size: 17px; font-weight: 700; color: var(--text); }
-.o-h { margin-top: 4px; font-size: 13px; font-weight: 700; color: var(--faint); }
-.o-v.up { color: var(--gold); }
-.o-v.down { color: var(--purple); }
-.o-v.muted { color: var(--faint); }
-.o-h.warn { color: var(--bad); }
-.note { margin: 14px 0 0; font-size: 13px; color: var(--faint); }
 
 /* ── 1. 시그널: 폰 = 얇은 칩 한 줄 (넓은 화면은 아래 미디어쿼리에서 썸네일 목록) ── */
 .signals { padding-top: 8px; padding-bottom: 16px; }
@@ -277,12 +253,84 @@ html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { .ib-bar { animation: none; } }
 @media (min-width: 720px) { .tcards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 
+/* ══ 계산기 탭: A3 '진짜 LCD 계산기' (2026-11-02) — 흑회색 본체 · 은색 테 + 녹회색 반사 LCD(검은 세그먼트) · 레지스터 칸 · 고무 키
+      7세그먼트는 큰 숫자에만, 나머지는 Pretendard · 강조 색(금색)은 '다음' 키 한 곳 · 예전 판 = _보관\계산기_카드탭판_1102 ══ */
+@font-face { font-family: "DSEG7"; src: url("fonts/DSEG7Classic-Bold.woff2") format("woff2"); font-weight: 700; font-display: block; }
+.calc .wrap { padding-top: 6px; }
+#calcdev { max-width: 380px; margin: 6px auto 0; padding: 14px 16px 16px; border-radius: 18px;
+  background: linear-gradient(180deg, #34373c, #2a2c30); box-shadow: inset 0 1px 0 rgba(255,255,255,.08), inset 0 -1px 0 rgba(0,0,0,.5); }
+#calcdev .bezel { padding: 7px; border-radius: 8px; background: linear-gradient(180deg, #9a9ea4, #6f737a); box-shadow: inset 0 1px 0 rgba(255,255,255,.35); }
+#calcdev .lcd { padding: 8px 12px 9px; border-radius: 3px; color: #1b2117;
+  background: linear-gradient(118deg, rgba(255,255,255,.16) 0 18%, rgba(255,255,255,0) 34%), linear-gradient(180deg, #b3bda2, #a3ad91);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.45); }
+#calcdev .l1, #calcdev .l2, #calcdev .l3 { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+#calcdev .l1 { font-size: 11px; font-weight: 800; color: #2c3427; }
+#calcdev .st { white-space: nowrap; text-wrap: nowrap; }
+#calcdev .extag { padding: 0 6px; border: 1px solid #4d5745; border-radius: 3px; font-size: 10px; font-weight: 800; letter-spacing: .04em; color: #3a4334; }
+#calcdev .extag[hidden] { display: none; }
+#calcdev .l2 { margin-top: 6px; align-items: flex-end; }
+#calcdev .lab { font-size: 11px; font-weight: 700; color: #3a4334; white-space: nowrap; text-wrap: nowrap; }
+#calcdev .lab.warn { color: #7a2a1d; }
+#calcdev .l2 .lab { padding-bottom: 6px; }
+#calcdev .num { display: grid; justify-items: end; min-width: 0; font-size: 46px; }
+#calcdev .num > span { grid-area: 1 / 1; font-family: "DSEG7", var(--font); font-weight: 700; font-size: inherit; line-height: 1; white-space: nowrap; text-wrap: nowrap; color: #1a2016; }
+#calcdev .gh { opacity: .08; }
+#calcdev .l3 { margin-top: 8px; font-size: 13px; }
+#calcdev .be { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; color: #1a2016; }
+/* 레지스터 칸 = 작은 LCD. 누른 칸만 반전 + 끝에 밑줄 커서(움직임 줄이기면 안 깜빡임) */
+#calcdev .rgs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+#calcdev .rgs[hidden] { display: none; }
+#calcdev .rg { position: relative; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; height: 50px; padding: 6px 10px 6px; border-radius: 4px; cursor: text;
+  background: linear-gradient(118deg, rgba(255,255,255,.14) 0 22%, rgba(255,255,255,0) 40%), linear-gradient(180deg, #b3bda2, #a3ad91);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.45), 0 0 0 1px #6f737a; }
+#calcdev .rg.wide { grid-column: 1 / -1; }
+#calcdev .rl { font-size: 10px; font-weight: 700; letter-spacing: .02em; color: #3a4334; white-space: nowrap; text-wrap: nowrap; }
+#calcdev .rv { display: block; width: 100%; min-width: 0; height: 22px; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none;
+  color: #1a2016; caret-color: transparent; font: 700 17px var(--font); text-align: right; font-variant-numeric: tabular-nums; outline: none; -webkit-appearance: none; appearance: none; }
+#calcdev .rv::placeholder { color: rgba(26, 32, 22, .34); font-weight: 700; opacity: 1; }
+#calcdev .rg.u .rv { padding-right: 16px; }
+#calcdev .ru { position: absolute; right: 10px; bottom: 9px; font-size: 11px; font-weight: 700; color: #3a4334; pointer-events: none; }
+#calcdev .rg.on { background: #1c2218; }
+#calcdev .rg.on .rl, #calcdev .rg.on .rv, #calcdev .rg.on .ru { color: #b8c3a5; }
+#calcdev .rg.on .rv::placeholder { color: rgba(184, 195, 165, .38); }
+#calcdev .rg.on::after { content: ""; position: absolute; right: 10px; bottom: 5px; width: 10px; height: 2px; background: #b8c3a5; animation: calc-blink 1.05s steps(1) infinite; }
+#calcdev .rg.on.u::after { right: 26px; }
+@keyframes calc-blink { 0%, 60% { opacity: 1; } 61%, 100% { opacity: 0; } }
+/* 기능 키 줄: 모드 3개(같은 모양 + LED) + 롱/숏 슬라이드 스위치 — 키패드와 같은 4열 */
+#calcdev .fn, #calcdev .pad { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+#calcdev .fn { margin-top: 12px; }
+#calcdev .modes { grid-column: 1 / span 3; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+#calcdev .pad { margin-top: 10px; row-gap: 9px; }
+#calcdev .m, #calcdev .k, #calcdev .sw { display: flex; align-items: center; justify-content: center; min-width: 0; margin: 0; padding: 0; border: 0; line-height: 1;
+  font-family: var(--font); cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+#calcdev .m, #calcdev .k { height: 46px; border-radius: 9px; color: #f1f2f4; background: linear-gradient(180deg, #4b5059, #3f444c);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.14), inset 0 -2px 0 rgba(0,0,0,.28), 0 1px 0 rgba(0,0,0,.5); }
+#calcdev .k { font-size: 20px; font-weight: 600; }
+#calcdev .k.f { background: linear-gradient(180deg, #6a707a, #5c626b); font-size: 15px; }
+#calcdev .k.go { background: linear-gradient(180deg, #f6ca5c, #e8b440); color: #1a1508; font-size: 14px; font-weight: 800;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.4), inset 0 -2px 0 rgba(0,0,0,.18), 0 1px 0 rgba(0,0,0,.5); }
+#calcdev .k:active, #calcdev .m:active { transform: translateY(1px); box-shadow: inset 0 1px 2px rgba(0,0,0,.4); }
+#calcdev .m { flex-direction: column; gap: 6px; height: 48px; background: linear-gradient(180deg, #6a707a, #5c626b); font-size: 11px; font-weight: 700; }
+#calcdev .led { display: block; width: 5px; height: 5px; border-radius: 50%; background: #3d424a; box-shadow: inset 0 1px 1px rgba(0,0,0,.5); }
+#calcdev .m[aria-selected="true"] .led { background: #e9f0dc; box-shadow: 0 0 6px rgba(233,240,220,.85); }
+#calcdev .sw { flex-direction: column; gap: 6px; height: 48px; border-radius: 9px; background: #25272b; box-shadow: inset 0 1px 2px rgba(0,0,0,.6); }
+#calcdev .sw:disabled { opacity: .35; cursor: default; }
+#calcdev .sw-t { display: flex; justify-content: space-between; width: 48px; font-size: 11px; font-weight: 700; color: #8f949c; }
+#calcdev[data-side="long"] .sw-t b:first-child, #calcdev[data-side="short"] .sw-t b:last-child { color: #f1f2f4; }
+#calcdev .slot { position: relative; display: block; width: 48px; height: 20px; border-radius: 4px; background: #15161a; box-shadow: inset 0 1px 2px rgba(0,0,0,.9); }
+#calcdev .knob { position: absolute; top: 2px; left: 2px; width: 24px; height: 16px; border-radius: 3px; background: linear-gradient(180deg, #b6bac0, #8b9097);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.5); transition: left .15s; }
+#calcdev[data-side="short"] .knob { left: 22px; }
+#calcdev .k:focus-visible, #calcdev .m:focus-visible, #calcdev .sw:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.calc-note { margin: 10px 0 0; text-align: center; font-size: 12px; color: var(--faint); }
+.calc-note[hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) { #calcdev .rg.on::after { animation: none; } #calcdev .knob { transition: none; } }
+
 /* ══ 앱 탭 구조 ══ 폰 = 화면 아래 고정 탭바 · 넓은 화면(720+) = 머리줄 아래 탭. 보일 탭은 html[data-tab] 하나로 정함 */
 .js .tab { display: none; }
 .js[data-tab="signals"] #tab-signals, .js[data-tab="calc"] #tab-calc,
 .js[data-tab="consult"] #tab-consult, .js[data-tab="answers"] #tab-answers { display: block; }
 .tab { padding-bottom: 8px; }
-.tab-title { font-size: 22px; }
 .tabbar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -301,26 +349,9 @@ html { scroll-behavior: smooth; }
 body { padding-bottom: calc(58px + env(safe-area-inset-bottom)); }
 
 /* 시그널 탭: 물타기 미니 계산기 + 실시간 버튼 */
-.mini { margin-top: 4px; }
-.mini-panel { margin-top: 0; padding-top: 14px; border-top: 1px solid var(--line); }
-.mini-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
-.mini-title { font-size: 17px; font-weight: 800; }
-.mini-more { flex: none; font-size: 14px; font-weight: 700; color: var(--purple); text-decoration: none; }
 .home-cta { margin-top: 24px; }
 
 /* 계산기 탭: 하위 탭 = 카드(아이콘 + 이름 + 한 줄 설명) */
-.subtabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 14px; }
-.subtabs [role="tab"] {
-  display: flex; flex-direction: column; align-items: flex-start; gap: 3px;
-  min-width: 0; padding: 10px 12px; text-align: left; cursor: pointer;
-  border: 1px solid var(--line2); border-radius: 12px; background: var(--bg2); color: var(--text);
-  transition: border-color .15s, background .15s;
-}
-.st-i { font-size: 20px; line-height: 1; margin-bottom: 3px; }
-.st-t { font-size: 15px; font-weight: 800; white-space: nowrap; text-wrap: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.st-d { font-size: 12px; font-weight: 400; color: var(--faint); white-space: nowrap; text-wrap: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.subtabs [role="tab"][aria-selected="true"] { border-color: rgba(245, 196, 81, .7); background: rgba(245, 196, 81, .08); }
-.subtabs [role="tab"][aria-selected="true"] .st-d { color: var(--sub); }
 
 /* 상담소 탭: 필수 4칸 + '더 적기' + '내 답 찾기' (둘 다 접이식) */
 .c-title { font-size: clamp(28px, 8vw, 40px); }
@@ -348,21 +379,6 @@ details > summary::-webkit-details-marker { display: none; }
 /* 폰: 첫 화면(390×844 · 360×780)에 시그널 칩 + 물타기 입력 4칸 + 결과 2줄이 스크롤 없이 들어가게 */
 @media (max-width: 719px) {
   .top { min-height: 52px; }
-  .panel { margin-top: 14px; }
-  .desc { margin-bottom: 10px; font-size: 14px; }
-  .seg-side { height: 40px; max-width: 168px; margin-bottom: 12px; padding: 3px; }
-  .seg-side span { font-size: 15px; }
-  .grid2 { gap: 10px; }
-  .grid2 .field { gap: 6px; }
-  .grid2 .label { font-size: 13px; }
-  .panel input[type="text"] { height: 46px; font-size: 17px; }
-  .panel .suffix > span { height: 46px; }
-  .panel .sign { top: 4px; width: 38px; height: 38px; }
-  .out { margin-top: 12px; padding: 2px 14px; }
-  .o-row { padding: 9px 0; }
-  .o-v { font-size: clamp(21px, 6vw, 24px); }
-  .o-h { margin-top: 2px; font-size: 12px; }
-  .note { margin-top: 10px; font-size: 12px; }
 }
 
 @media (min-width: 720px) {
