@@ -241,6 +241,9 @@
      처음(모드의 칸이 다 비었을 때)엔 흐린 예시(placeholder) + 액정 '예시'. 칸에 값이 들어가면 그 모드는 실제 계산만(빈 칸이 있으면 '--.--') */
   var calcDevice = (function () {
     var dev = $('#calcdev');
+    // 11/03 폰에서 칸을 누르면 브라우저가 그 칸으로 스크롤해 화면이 위아래로 출렁임(사용자 지적) → 터치 기기에선 칸에 진짜 포커스를 주지 않고
+    // 우리 표시(.rg.on + 밑줄 커서)만 옮긴다. 키패드 입력은 active 칸 끝에 붙으므로 포커스가 없어도 된다. PC(마우스)는 그대로.
+    var COARSE = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
     if (!dev) return null;
     var groups = { avg: $('#avg'), breakeven: $('#breakeven'), liq: $('#liq') };
     var EX = {
@@ -329,9 +332,10 @@
     var move = function (dir) {                           // 다음/이전 칸 — 끝에서는 처음으로 돌아감
       var list = fields();
       if (!list.length) return;
+      var hadFocus = list.indexOf(document.activeElement) >= 0;   // 이미 진짜 포커스로 쓰는 중(키보드·보조기기)이면 포커스도 같이 옮김 — 탭으로 새 포커스는 안 만듦
       var i = list.indexOf(current());
       var t = list[(i + dir + list.length) % list.length];
-      t.focus({ preventScroll: true });
+      if (!COARSE || hadFocus) t.focus({ preventScroll: true });
       toEnd(t);
       setActive(t);
     };
@@ -353,7 +357,7 @@
         a += k.length;
       }
       f.value = v;
-      if (!focused) f.focus({ preventScroll: true });
+      if (!focused && !COARSE) f.focus({ preventScroll: true });
       try { f.setSelectionRange(a, a); } catch (e) { /* 일부 브라우저 */ }
       setActive(f);
       f.dispatchEvent(new Event('input', { bubbles: true }));   // 콤마 정리(캡처 단계) → 다시 계산
@@ -364,6 +368,14 @@
       if (t.matches && t.matches('input[data-k]')) { setActive(t); setTimeout(function () { toEnd(t); }, 0); }
     });
     dev.addEventListener('click', function (e) { var t = e.target; if (t.matches && t.matches('input[data-k]')) { setActive(t); toEnd(t); } });
+    if (COARSE) dev.addEventListener('click', function (e) {   // 터치: 칸(라벨)을 누르면 포커스·스크롤 없이 그 칸만 고름 (칸 자체는 CSS 로 pointer-events: none)
+      var rg = e.target && e.target.closest ? e.target.closest('.rg') : null;
+      var inp = rg && dev.contains(rg) ? rg.querySelector('input[data-k]') : null;
+      if (!inp) return;
+      e.preventDefault();
+      if (document.activeElement === inp) inp.blur();
+      setActive(inp);
+    }, true);
     dev.addEventListener('keydown', function (e) {
       var t = e.target;
       if (!(t.matches && t.matches('input[data-k]'))) return;
@@ -644,8 +656,16 @@
           var img = typeof a.img === 'string' && IMG_OK.test(a.img) ? a.img : '';
           var thumb = typeof a.thumb === 'string' && IMG_OK.test(a.thumb) ? a.thumb : img;
           var at = typeof a.at === 'string' ? a.at.slice(0, 25) : '';
-          if (!nick || (!sum && !url)) return;
-          out.push({ nick: nick, key: keyOf(nick), sum: sum, url: url, img: img, thumb: thumb, at: at });
+          // 상담 답 칸 (11/3 consult-real-answers-1103) — 없거나 이상하면 빈 값(예전 답은 요약만으로 그대로 그림)
+          var coin = typeof a.coin === 'string' && /^[A-Z0-9\uAC00-\uD7A3]{1,20}$/.test(a.coin) ? a.coin : '';
+          var side = a.side === 'long' || a.side === 'short' ? a.side : '';
+          var avg = typeof a.avg === 'string' && /^\d{1,13}(\.\d{1,12})?$/.test(a.avg) ? a.avg : '';
+          var lines = (Array.isArray(a.lines) ? a.lines : []).filter(function (x) { return typeof x === 'string' && x.trim(); })
+            .slice(0, 2).map(function (x) { return x.slice(0, 80); });
+          var mid = typeof a.mid === 'string' && IMG_OK.test(a.mid) ? a.mid : '';
+          if (!nick || (!sum && !url && !lines.length)) return;
+          out.push({ nick: nick, key: keyOf(nick), sum: sum, url: url, img: img, thumb: thumb, mid: mid, at: at,
+                     coin: coin, side: side, avg: avg, lines: lines });
         } catch (e) { /* 건너뜀 */ }
       });
       out.sort(function (x, y) { return x.at < y.at ? 1 : x.at > y.at ? -1 : 0; });
@@ -677,6 +697,50 @@
       }
       row.appendChild(body);
       return row;
+    };
+    /* 상담소 '최근 답변' (11/3 consult-real-answers-1103): answers.json 에 실제 답이 있으면 예시 카드 자리(#cases)를 최신 3개로
+       질문자 줄 '옥토 · SOL 롱 · 평단 98.4' + 그림(600×750 mid) + 답 두 줄(첫 줄 굵게) + '11/3 · 스레드에서 보기 →'
+       1개뿐이면 예시 1장을 옆에 남김(넓은 화면 = 같은 폭 칸으로 꽉 채우는 규칙 · 카드 한 장이 칸 전체로 커지지 않게). 없으면 예시 그대로 */
+    var casesBox = $('#cases'), casesMeta = $('#cases-meta');
+    var fmtAvg = function (s) { var m = /^(\d+)(\.\d+)?$/.exec(String(s || '')); return m ? m[1].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (m[2] || '') : String(s || ''); };
+    var mmdd = function (at) { return /^\d{4}-\d{2}-\d{2}/.test(at) ? Number(at.slice(5, 7)) + '/' + Number(at.slice(8, 10)) : ''; };
+    var qLine = function (a) {
+      return a.nick + (a.coin ? ' · ' + a.coin + (a.side ? ' ' + (a.side === 'short' ? '숏' : '롱') : '') + (a.avg ? ' · 평단 ' + fmtAvg(a.avg) : '') : '');
+    };
+    var caseCard = function (a) {
+      var art = mk('article', 'case real'), q = mk('p', 'case-q'), d = mmdd(a.at);
+      q.appendChild(mk('span', null, qLine(a)));
+      art.appendChild(q);
+      if (a.img) {
+        var link = mk('a', 'case-img');
+        link.href = a.img;
+        link.setAttribute('data-cap', qLine(a));
+        var im = mk('img');
+        im.src = a.mid || a.img; im.alt = qLine(a) + ' 답 그림'; im.width = 600; im.height = 750; im.loading = 'lazy'; im.decoding = 'async';
+        link.appendChild(im);
+        art.appendChild(link);
+      }
+      var ans = mk('p', 'case-a');
+      ans.appendChild(mk('b', null, a.lines[0] || a.sum));
+      if (a.lines[1]) ans.appendChild(document.createTextNode(a.lines[1]));
+      art.appendChild(ans);
+      if (a.url) {
+        var go = mk('a', 'case-link', (d ? d + ' · ' : '') + '스레드에서 보기 \u2192');
+        go.href = a.url; go.target = '_blank'; go.rel = 'noopener';
+        art.appendChild(go);
+      }
+      return art;
+    };
+    var renderCases = function () {
+      if (!casesBox || !ANSWERS || !ANSWERS.length) return;       // 실제 답 없음 → 예시 그대로
+      var real = ANSWERS.slice(0, 3), ex = $$('.case', casesBox).filter(function (c) { return !c.classList.contains('real'); });
+      var keep = real.length < 2 && ex.length ? ex[0].cloneNode(true) : null;   // 복제본 — 같은 노드를 다시 붙이면 크롬이 가로 넘김을 그 카드로 다시 맞춰(스냅) 첫 카드가 밀려남
+      casesBox.textContent = '';
+      real.forEach(function (a) { casesBox.appendChild(caseCard(a)); });
+      if (keep) casesBox.appendChild(keep);
+      casesBox.scrollLeft = 0;
+      casesBox.setAttribute('data-real', String(real.length));
+      if (casesMeta) casesMeta.textContent = '최근 답변' + (mmdd(real[0].at) ? ' · ' + mmdd(real[0].at) : '');
     };
     var renderRecent = function (failed) {
       if (!ansBox) return;                             // 최근 답변 칸은 지금 없음(검색만)
@@ -716,7 +780,7 @@
     try { var saved = localStorage.getItem(NICK_KEY); if (saved && !afNick.value) afNick.value = saved; } catch (e) { /* 저장 막힘 */ }
     fetch('answers.json?t=' + Math.floor(Date.now() / 60000), { cache: 'no-store' })
       .then(function (r) { return r.ok ? r.json() : []; })
-      .then(function (j) { ANSWERS = clean(j); renderRecent(false); })
+      .then(function (j) { ANSWERS = clean(j); renderRecent(false); renderCases(); })
       .catch(function () { ANSWERS = []; renderRecent(true); });
     var find = $('#find');
     if (find) find.addEventListener('toggle', function () { if (find.open && !afNick.value) afNick.focus(); });

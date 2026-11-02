@@ -192,6 +192,33 @@ input::placeholder, textarea::placeholder { color: #575e6c; font-weight: 400; op
 .home-cta { margin-top: 24px; }
 @media (prefers-reduced-motion: reduce) { .ib-bar { animation: none; } }
 @media (min-width: 720px) { .tcards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+/* 지표 표시 (11/03) — 카드 가격선·막대 줄의 표시 = 그 지표가 ath.zetro.io 차트에 실제로 찍는 모양·색 (빔 점 · 다이아 · 헥사곤 · 스퀘어 · 아트로포스 별 · 클러스터 원, build_site.py mark_of) */
+.ib-l1 { display: flex; align-items: center; gap: 5px; min-width: 0; }
+.ib-l1 .ib-coin { min-width: 0; }
+.mk { flex: none; display: block; overflow: visible; }
+/* 시그널 탭 두 단락 (11/03) — 탭 머리(ATH 시그널 리포트) 아래 '오늘 HOT 시그널' · '어제 지표별 1등 시그널' = 상담소 소제목(.sec-t)과 같은 모양 + 창 라벨 */
+.sec-win { margin: 4px 0 0; font-size: 13px; line-height: 1.45; color: var(--sub); font-variant-numeric: tabular-nums; white-space: nowrap; text-wrap: nowrap; }
+.hot .sec-t { margin-top: 20px; }
+/* 오늘 HOT (build_site.py ← signals_today.json) — hidden 으로 그리고 6시간 안 · 같은 날일 때만 바로 뒤 스크립트가 보여 줌 */
+.hot-c { margin-top: 12px; padding: 12px 14px 8px; }
+.hot-top { display: flex; align-items: center; gap: 8px; min-width: 0; margin: 0 0 6px; font-size: 13px; font-weight: 700; line-height: 1.4; color: var(--sub); white-space: nowrap; text-wrap: nowrap; }
+.hot-chip { background: var(--text); border-color: var(--text); color: var(--bg); font-weight: 800; letter-spacing: .04em; }
+.hot-ind { display: inline-flex; align-items: center; gap: 5px; flex: none; color: var(--text); }
+.hot-seen { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.hot-side { flex: none; margin-left: auto; }
+.hot-c .tc-coin { font-size: 24px; }
+.hot-c .tc-pct { font-size: 30px; }
+.hot-ru { list-style: none; margin: 8px 0 0; padding: 0; }
+.hot-ru li { display: grid; grid-template-columns: 14px auto minmax(0, 1fr) auto; align-items: center; gap: 0 10px; min-height: 40px; padding: 0 4px; border-bottom: 1px solid var(--line); }
+.hr-n { font-size: 12px; font-weight: 700; color: var(--faint); text-align: center; font-variant-numeric: tabular-nums; }
+.hr-coin { font-size: 15px; font-weight: 800; white-space: nowrap; text-wrap: nowrap; }
+.hr-ind { display: flex; align-items: center; gap: 5px; min-width: 0; overflow: hidden; font-size: 13px; font-weight: 700; color: var(--sub); white-space: nowrap; text-wrap: nowrap; }
+.hr-pct { font-size: 15px; font-weight: 800; letter-spacing: -.01em; font-variant-numeric: tabular-nums; white-space: nowrap; text-wrap: nowrap; }
+@media (min-width: 720px) {
+  .hot-c { display: grid; grid-template-columns: minmax(0, 1fr) 340px; column-gap: 24px; align-content: center; }
+  .hot-c > * { grid-column: 1; }
+  .hot-c .tc-svg { grid-column: 2; grid-row: 1 / span 3; margin: 0; align-self: center; }
+}
 
 /* ══ 2. 계산기 탭 — A3 구조(숫자 화면 · 칸 · 모드/롱숏 · 4×4 키패드) 그대로, 겉은 사이트 카드
       카드 안 어두운 숫자 패널 + 흰 7세그먼트(꺼진 '88.88' 5.5% 겹침) · 둘째 줄 값 = 방향 색 · 금색 = '다음' 하나 ══ */
@@ -250,6 +277,15 @@ input::placeholder, textarea::placeholder { color: #575e6c; font-weight: 400; op
 .case-img img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; }
 .case-a { margin: 0; padding: 10px 14px 12px; font-size: 13px; line-height: 1.45; color: var(--sub); }
 .case-a b { display: block; font-weight: 800; color: var(--text); }
+/* 실제 답 카드 (11/3 consult-real-answers-1103 — 대시보드 상담 탭에서 등록한 답): 답 두 줄 아래 '11/3 · 스레드에서 보기 →' 한 줄, 카드 아래 끝에 맞춤 */
+.case.real .case-a { padding-bottom: 4px; }
+.case-link { display: block; margin-top: auto; padding: 0 14px 12px; font-size: 13px; font-weight: 700; line-height: 1.45; color: var(--sub); text-decoration: none; }
+.case-link:hover { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
+/* 넓은 화면(600+)에서 실제 답 카드끼리 질문자 줄·그림·답·링크 줄 높이를 맞춤(3칸이면 질문자 줄이 두 줄이 되기도 함) — subgrid, 안 되는 브라우저는 예전처럼 위에서부터 쌓임 */
+@media (min-width: 600px) {
+  .cases[data-real] { grid-template-rows: repeat(4, auto); }
+  .cases[data-real] > .case { display: grid; grid-row: span 4; grid-template-rows: subgrid; row-gap: 0; }
+}
 .sec-t { margin: 32px 0 0; font-size: 20px; line-height: 1.3; font-weight: 800; letter-spacing: -.02em; }
 .cf { margin-top: 12px; display: grid; gap: 12px; }
 .row2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
@@ -365,3 +401,8 @@ body { padding-bottom: calc(58px + env(safe-area-inset-bottom)); }
   .cases::after { display: none; }
   .case { flex: none; }
 }
+
+/* 11/03 폰 계산기 출렁임: 터치 기기에선 칸 자체를 누를 수 없게 하고(라벨이 받아 스크립트가 고름 → 브라우저 포커스 스크롤 없음),
+   키·칸을 빠르게 두 번 눌러도 확대(더블탭 줌)가 안 되게 */
+#calcdev .k, #calcdev .rg, #calcdev .seg button { touch-action: manipulation; }
+@media (pointer: coarse) { #calcdev input[data-k] { pointer-events: none; } }
