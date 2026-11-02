@@ -220,6 +220,43 @@ a.sig-chip:active { background: #1a1e28; }
 .lb-close { height: 52px; padding: 0 18px; border: 0; background: transparent; color: var(--sub); font-size: 15px; font-weight: 700; cursor: pointer; }
 .lb-close:focus-visible { outline-offset: -6px; }   /* 창 가장자리에 잘려 금색 막대로 보이지 않게 안쪽에 */
 
+/* ── 머리줄 아래 얇은 상담소 버튼 ── */
+html { scroll-behavior: smooth; }
+#consult, #answers { scroll-margin-top: 8px; }
+.consult-bar-wrap { padding-bottom: 4px; }
+.consult-bar {
+  display: block; height: 36px; line-height: 34px; padding: 0 12px; border-radius: 10px;
+  border: 1px solid rgba(245, 196, 81, .24); background: rgba(245, 196, 81, .08); color: var(--gold);
+  font-size: clamp(13px, 3.7vw, 14px); font-weight: 700; text-align: center; text-decoration: none;
+  white-space: nowrap; text-wrap: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.consult-bar:active { background: rgba(245, 196, 81, .16); }
+.help { margin: 0; font-size: 13px; color: var(--faint); }
+.cf-msg.ok { white-space: pre-line; line-height: 1.6; }
+
+/* ── 4. 내 답 찾기 ── */
+.answers { padding-top: 48px; padding-bottom: 56px; border-top: 1px solid var(--line); }
+.af { display: flex; gap: 8px; margin-top: 16px; }
+.af input { flex: 1 1 auto; min-width: 0; }
+.btn-find { flex: none; height: 52px; padding: 0 22px; border: 0; border-radius: 12px; background: var(--text); color: var(--bg); font-size: 16px; font-weight: 800; cursor: pointer; }
+.ans-result { margin-top: 16px; }
+.ans-result:empty { display: none; }
+.ans-title { margin: 32px 0 0; font-size: 17px; font-weight: 800; }
+.ans-list { margin-top: 12px; }
+.ans { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 14px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
+.ans:last-child { border-bottom: 1px solid var(--line); }
+.ans-thumb { display: block; width: 64px; height: 80px; border-radius: 8px; overflow: hidden; border: 1px solid var(--line2); background: var(--bg2); }
+.ans-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.ans-head { margin: 0; }
+.ans-nick { font-size: 16px; font-weight: 800; }
+.ans-date { margin-left: 8px; font-size: 12px; color: var(--faint); }
+.ans-sum { margin: 4px 0 0; font-size: 15px; }
+.ans-link { display: inline-block; margin-top: 6px; font-size: 14px; font-weight: 700; color: var(--purple); text-decoration: none; }
+.ans-empty, .ans-msg { margin: 0; font-size: 15px; color: var(--sub); }
+.ans-empty a { color: var(--gold); font-weight: 700; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
 /* 폰: 첫 화면(390×844 · 360×780)에 시그널 칩 + 물타기 입력 4칸 + 결과 2줄이 스크롤 없이 들어가게 */
 @media (max-width: 719px) {
   .top { min-height: 52px; }

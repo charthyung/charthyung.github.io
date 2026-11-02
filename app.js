@@ -47,6 +47,20 @@
   }
   function fmtPlain(x, digits) { return nf({ maximumFractionDigits: digits }).format(x); }
 
+  /* ───────── 별명 ───────── */
+  var NICK_KEY = 'charthyung_nick';
+  function cleanNick(s) { s = String(s || ''); if (s.normalize) s = s.normalize('NFC'); return s.trim(); }
+  function josaRo(w) {                                   // 받침 있으면 '으로' (ㄹ 받침은 '로')
+    var t = String(w || ''), c = t.charCodeAt(t.length - 1);
+    if (c >= 0xAC00 && c <= 0xD7A3) { var j = (c - 0xAC00) % 28; return j === 0 || j === 8 ? '로' : '으로'; }
+    return '로';
+  }
+  function rememberNick(n) {
+    try { localStorage.setItem(NICK_KEY, n); } catch (e) { /* 저장 막힘 */ }
+    var box = document.getElementById('af-nick');
+    if (box && n) box.value = n;
+  }
+
   /* ───────── 입력칸: 천 단위 콤마 ───────── */
   function formatField(el) {
     var old = el.value;
@@ -268,6 +282,7 @@
     var COIN_RE = /^[A-Z0-9가-힣]{1,20}$/;
     var NUM_RE = /^\d{1,13}(\.\d{1,12})?$/;
     var LEV_RE = /^\d{1,3}(\.\d{1,2})?$/;
+    var NICK_RE = /^[A-Za-z0-9\uAC00-\uD7A3]{2,12}$/;          // 답 찾을 때 쓸 별명 (서버와 같은 규칙)
     var URL_RE = /(https?:|www\.|:\/\/|[a-z0-9-]+\.(com|net|org|io|kr|me|ly|gg|xyz|link|top|site|info|co)\b)/i;
 
     var lastSent = function () {
@@ -318,6 +333,7 @@
         avg: String(el.avg.value || '').replace(/[,\s]/g, ''),
         lev: String(el.lev.value || '').replace(/[,\s]/g, ''),
         note: String(el.note.value || '').replace(/\s+/g, ' ').trim(),
+        nick: cleanNick(el.nick.value),
         website: String(el.website.value || '')
       };
     };
@@ -330,13 +346,17 @@
       if (d.lev && (!LEV_RE.test(d.lev) || Number(d.lev) < 1 || Number(d.lev) > 200)) return ['lev', '레버리지는 1~200 사이 숫자로 적어 주세요.'];
       if (d.note.length > 200) return ['note', '고민은 200자까지예요.'];
       if (URL_RE.test(d.note)) return ['note', '고민 칸에는 링크를 넣을 수 없어요.'];
+      if (!d.nick) return ['nick', '답 찾을 때 쓸 별명을 적어 주세요.'];
+      if (!NICK_RE.test(d.nick)) return ['nick', '별명은 한글·영문·숫자 2~12자로, 띄어쓰기 없이 적어 주세요.'];
       return null;
     };
-    var succeed = function () {
+    var succeed = function (nick) {
       markSent();
       form.reset();
       count.textContent = '0';
-      say('접수됨 — 고른 사연은 스레드에 익명으로 답해요', 'ok');
+      say('접수됐어요 \u2705\n답은 1~2일 안에 스레드 @charthyung과 이 페이지 \'내 답 찾기\'에 올라와요. '
+        + '별명 \'' + nick + '\'' + josaRo(nick) + ' 찾으세요. (사연이 많으면 골라서 답해요)', 'ok');
+      rememberNick(nick);
     };
 
     form.addEventListener('submit', function (e) {
@@ -358,9 +378,9 @@
         return;
       }
       // 숨김 칸이 채워졌거나 열자마자 보낸 경우 = 자동 프로그램으로 보고 보낸 척만 한다
-      if (d.website || Date.now() - opened < 1500) { succeed(); return; }
+      if (d.website || Date.now() - opened < 1500) { succeed(d.nick); return; }
 
-      var body = JSON.stringify({ coin: d.coin, side: d.side, avg: d.avg, lev: d.lev || null, note: d.note || null });
+      var body = JSON.stringify({ nick: d.nick, coin: d.coin, side: d.side, avg: d.avg, lev: d.lev || null, note: d.note || null });
       btn.disabled = true;
       say('보내는 중…', 'info');
       var ctrl = typeof AbortController === 'function' ? new AbortController() : null;
@@ -376,12 +396,13 @@
         return res.json().catch(function () { return null; }).then(function (j) { return { res: res, j: j }; });
       }).then(function (r) {
         var st = r.res.status, j = r.j || {};
-        if (r.res.ok && j.ok) { succeed(); return; }
+        if (r.res.ok && j.ok) { succeed(d.nick); return; }
         if (st === 429) { say('잠깐만요 — 1시간에 5번까지 보낼 수 있어요.', 'warn'); return; }
         if (st === 400 && j.field) {
           var f2 = fieldOf(j.field);
           if (f2) f2.classList.add('invalid');
-          say(j.field === 'note' ? '고민 칸에 쓸 수 없는 내용이 있어요.' : '입력값을 다시 확인해 주세요.', 'err');
+          say(j.field === 'note' ? '고민 칸에 쓸 수 없는 내용이 있어요.'
+            : j.field === 'nick' ? '별명은 한글·영문·숫자 2~12자로 적어 주세요.' : '입력값을 다시 확인해 주세요.', 'err');
           return;
         }
         if (st === 413) { say('내용이 너무 길어요.', 'err'); return; }
@@ -396,11 +417,105 @@
     });
   }
 
+  /* ───────── 내 답 찾기 (answers.json · add_answer.py 로 추가) ───────── */
+  var ansBox = $('#ans-recent'), ansRes = $('#af-result'), af = $('#af'), afNick = $('#af-nick');
+  if (ansBox && ansRes && af && afNick) {
+    var ANSWERS = null;
+    var IMG_OK = /^answers\/[A-Za-z0-9_.\-]+\.(png|jpe?g|webp)$/;
+    var URL_OK = /^https:\/\/(www\.)?threads\.(com|net)\/[^\s"'<>]+$/;
+    var keyOf = function (s) { return cleanNick(s).replace(/\s+/g, '').replace(/\(\d{1,3}\)$/, '').toLowerCase(); };
+    var mk = function (tag, cls, text) { var x = document.createElement(tag); if (cls) x.className = cls; if (text != null) x.textContent = text; return x; };
+    var clean = function (arr) {                       // 항목마다 걸러 읽기 — 깨진 한 항목이 전체를 못 죽이게
+      var out = [];
+      (Array.isArray(arr) ? arr : []).forEach(function (a) {
+        try {
+          if (!a || typeof a !== 'object') return;
+          var nick = typeof a.nick === 'string' ? a.nick.slice(0, 20) : '';
+          var sum = typeof a.summary === 'string' ? a.summary.slice(0, 160) : '';
+          var url = typeof a.url === 'string' && URL_OK.test(a.url) ? a.url : '';
+          var img = typeof a.img === 'string' && IMG_OK.test(a.img) ? a.img : '';
+          var thumb = typeof a.thumb === 'string' && IMG_OK.test(a.thumb) ? a.thumb : img;
+          var at = typeof a.at === 'string' ? a.at.slice(0, 25) : '';
+          if (!nick || (!sum && !url)) return;
+          out.push({ nick: nick, key: keyOf(nick), sum: sum, url: url, img: img, thumb: thumb, at: at });
+        } catch (e) { /* 건너뜀 */ }
+      });
+      out.sort(function (x, y) { return x.at < y.at ? 1 : x.at > y.at ? -1 : 0; });
+      return out;
+    };
+    var card = function (a) {
+      var row = mk('div', 'ans');
+      if (a.img) {
+        var link = mk('a', 'ans-thumb');
+        link.href = a.img;
+        link.setAttribute('data-cap', a.nick + (a.sum ? ' · ' + a.sum : ''));
+        var im = mk('img');
+        im.src = a.thumb || a.img; im.alt = a.nick + ' 답 카드'; im.width = 64; im.height = 80; im.loading = 'lazy';
+        link.appendChild(im);
+        row.appendChild(link);
+      } else {
+        row.appendChild(mk('span', 'ans-thumb none'));
+      }
+      var body = mk('div', 'ans-body');
+      var head = mk('p', 'ans-head');
+      head.appendChild(mk('strong', 'ans-nick', a.nick));
+      if (/^\d{4}-\d{2}-\d{2}/.test(a.at)) head.appendChild(mk('span', 'ans-date', a.at.slice(5, 7) + '/' + a.at.slice(8, 10)));
+      body.appendChild(head);
+      if (a.sum) body.appendChild(mk('p', 'ans-sum', a.sum));
+      if (a.url) {
+        var l = mk('a', 'ans-link', '스레드에서 보기 \u2197');
+        l.href = a.url; l.target = '_blank'; l.rel = 'noopener';
+        body.appendChild(l);
+      }
+      row.appendChild(body);
+      return row;
+    };
+    var renderRecent = function (failed) {
+      ansBox.textContent = '';
+      if (failed) { ansBox.appendChild(mk('p', 'ans-empty', '답변을 불러오지 못했어요. 새로고침해 주세요.')); return; }
+      if (!ANSWERS.length) {
+        var p = mk('p', 'ans-empty', '아직 답변 없음 \u2014 ');
+        var go = mk('a', null, '첫 사연을 보내 보세요');
+        go.href = '#consult';
+        p.appendChild(go);
+        ansBox.appendChild(p);
+        return;
+      }
+      ANSWERS.slice(0, 5).forEach(function (a) { ansBox.appendChild(card(a)); });
+    };
+    var search = function (q) {
+      ansRes.textContent = '';
+      var key = keyOf(q);
+      if (!key) return;
+      if (ANSWERS === null) { ansRes.appendChild(mk('p', 'ans-msg', '답변을 불러오는 중이에요. 잠시 뒤 다시 눌러 주세요.')); return; }
+      var hits = ANSWERS.filter(function (a) { return a.key === key; });
+      if (!hits.length) {
+        ansRes.appendChild(mk('p', 'ans-msg', '\'' + cleanNick(q) + '\' 답은 아직 없어요. 답은 1~2일 안에 올라와요(사연이 많으면 골라서 답해요).'));
+        return;
+      }
+      ansRes.appendChild(mk('p', 'ans-msg', '\'' + cleanNick(q) + '\' 답 ' + hits.length + '개'));
+      var list = mk('div', 'ans-list');
+      hits.forEach(function (a) { list.appendChild(card(a)); });
+      ansRes.appendChild(list);
+    };
+    af.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var q = cleanNick(afNick.value);
+      search(q);
+      if (q) { try { localStorage.setItem(NICK_KEY, q); } catch (x) { /* 저장 막힘 */ } }
+    });
+    try { var saved = localStorage.getItem(NICK_KEY); if (saved && !afNick.value) afNick.value = saved; } catch (e) { /* 저장 막힘 */ }
+    fetch('answers.json?t=' + Math.floor(Date.now() / 60000), { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (j) { ANSWERS = clean(j); renderRecent(false); })
+      .catch(function () { ANSWERS = []; renderRecent(true); });
+  }
+
   /* ───────── 시그널 카드 크게 보기 ───────── */
   var lb = $('#lb'), lbImg = $('#lb-img'), lbCap = $('#lb-cap');
   if (lb && lbImg && typeof lb.showModal === 'function') {
     document.addEventListener('click', function (e) {
-      var a = e.target && e.target.closest ? e.target.closest('a.sig-thumb[href], a.sig-chip[href]') : null;
+      var a = e.target && e.target.closest ? e.target.closest('a.sig-thumb[href], a.sig-chip[href], a.ans-thumb[href]') : null;
       if (!a) return;
       e.preventDefault();
       var im = $('img', a);

@@ -36,6 +36,7 @@
   </a>
   <a class="top-link" href="https://www.threads.com/@charthyung" target="_blank" rel="noopener">@charthyung</a>
 </header>
+<div class="wrap consult-bar-wrap"><a class="consult-bar" href="#consult">🙋 익명 상담소 — 물린 코인 차트 봐 드림 ↓</a></div>
 
 <main>
   <!-- 1. 이번 주 시그널 잘 뜬 코인 (build_site.py 가 아래 표시 사이를 채움 — 손으로 고치지 말 것) · 폰 = 칩 한 줄, 넓은 화면 = 썸네일 목록 -->
@@ -230,6 +231,11 @@
         <textarea id="cf-note" name="note" rows="2" maxlength="200" placeholder="예: 반등 나올 자리가 있는지 궁금함"></textarea>
         <div class="count" aria-hidden="true"><span id="cf-count">0</span> / 200</div>
       </div>
+      <div class="field">
+        <label for="cf-nick">답 찾을 때 쓸 별명</label>
+        <input id="cf-nick" name="nick" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="12" placeholder="예: 물린고양이" required aria-describedby="cf-nick-help">
+        <p class="help" id="cf-nick-help">한글·영문·숫자 2~12자, 띄어쓰기 없이 · 이 별명으로 아래 '내 답 찾기'에서 찾아요</p>
+      </div>
       <div class="hp" aria-hidden="true">
         <label for="cf-website">이 칸은 비워 두세요</label>
         <input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off">
@@ -239,6 +245,20 @@
       <button type="submit" class="btn-primary" id="cf-submit">익명으로 보내기</button>
     </form>
     <p class="fine">차트에 뜬 것만 보여 드려요. 매수·매도 추천 아님.</p>
+  </section>
+
+  <!-- 4. 내 답 찾기 (answers.json — add_answer.py 로만 추가) -->
+  <section id="answers" class="answers wrap" aria-labelledby="answers-title">
+    <h2 id="answers-title">내 답 찾기</h2>
+    <p class="sec-sub">접수할 때 쓴 별명으로 찾아요.</p>
+    <form id="af" class="af" role="search" autocomplete="off">
+      <label class="sr-only" for="af-nick">별명</label>
+      <input id="af-nick" type="text" maxlength="16" placeholder="별명" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <button type="submit" class="btn-find">찾기</button>
+    </form>
+    <div id="af-result" class="ans-result" aria-live="polite"></div>
+    <h3 class="ans-title">최근 답변</h3>
+    <div id="ans-recent" class="ans-list"><p class="ans-empty">불러오는 중…</p></div>
   </section>
 </main>
 
