@@ -406,3 +406,7 @@ body { padding-bottom: calc(58px + env(safe-area-inset-bottom)); }
    키·칸을 빠르게 두 번 눌러도 확대(더블탭 줌)가 안 되게 */
 #calcdev .k, #calcdev .rg, #calcdev .seg button { touch-action: manipulation; }
 @media (pointer: coarse) { #calcdev input[data-k] { pointer-events: none; } }
+
+/* 11/03 카드 단순화(코인 · % · 차트만): 넓은 화면에서도 HOT 카드를 어제 카드와 같은 '위 머리줄 + 아래 차트' 한 줄 배치로 */
+@media (min-width: 720px) { .hot-c { display: block; } .hot-c .tc-svg { margin-top: 6px; } }
+.tc-head + .tc-svg { margin-top: 10px; }
