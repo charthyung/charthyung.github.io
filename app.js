@@ -60,6 +60,24 @@
     var box = document.getElementById('af-nick');
     if (box && n) box.value = n;
   }
+  var CODE_KEY = 'charthyung_code';                      // 확인 코드도 이 기기에만 기억(11/3 consult-private-answers-1103) — 다른 기기면 캡처한 코드로
+  var CODE_OK = /^[ABCDEFGHJKMNPQRSTUVWXYZ23456789]{6}$/;
+  function rememberCode(c) {
+    try { localStorage.setItem(CODE_KEY, c); } catch (e) { /* 저장 막힘 */ }
+    var box = document.getElementById('af-code');
+    if (box && c) box.value = c;
+  }
+  function copyText(t, done) {
+    var ok = function () { done(true); }, fall = function () {
+      try {
+        var ta = document.createElement('textarea');
+        ta.value = t; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
+        document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, t.length);
+        var r = document.execCommand('copy'); ta.remove(); done(!!r);
+      } catch (e) { done(false); }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok, fall); else fall();
+  }
 
   /* ───────── 입력칸: 천 단위 콤마 ───────── */
   function formatField(el) {
@@ -568,14 +586,24 @@
       if (!NICK_RE.test(d.nick)) return ['nick', '별명은 한글·영문·숫자 2~12자로, 띄어쓰기 없이 적어 주세요.'];
       return null;
     };
-    var succeed = function (nick) {
+    var codeBox = $('#cf-code'), codeV = $('#cf-code-v'), codeN = $('#cf-code-n'), codeCopy = $('#cf-code-copy');
+    var fakeCode = function () { var a = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789', s = ''; for (var i = 0; i < 6; i++) s += a.charAt(Math.floor(Math.random() * a.length)); return s; };
+    var succeed = function (nick, code) {
       markSent();
       form.reset();
       count.textContent = '0';
-      say('접수됐어요\n답은 스레드 @charthyung과 이 페이지 \'내 답 왔나 보기\'에 올라와요. '   // 확인 표시는 CSS(.cf-msg.ok::before)
-        + '별명 \'' + nick + '\'' + josaRo(nick) + ' 찾으세요. (사연이 많으면 골라서 답해요)', 'ok');
+      say('접수됐어요\n답은 이 페이지 \'내 답 왔나 보기\'에서 별명과 확인 코드로 본인만 볼 수 있어요. (사연이 많으면 골라서 답해요)', 'ok');   // 확인 표시는 CSS(.cf-msg.ok::before)
       rememberNick(nick);
+      if (codeBox && code) {
+        codeV.textContent = code;
+        codeN.textContent = '· 별명 ' + nick;
+        codeBox.hidden = false;
+        rememberCode(code);
+      } else if (codeBox) codeBox.hidden = true;
     };
+    if (codeCopy) codeCopy.addEventListener('click', function () {
+      copyText(codeV.textContent, function (ok) { codeCopy.textContent = ok ? '복사됨' : '길게 눌러 복사'; setTimeout(function () { codeCopy.textContent = '코드 복사'; }, 1600); });
+    });
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
@@ -598,7 +626,7 @@
         return;
       }
       // 숨김 칸이 채워졌거나 열자마자 보낸 경우 = 자동 프로그램으로 보고 보낸 척만 한다
-      if (d.website || Date.now() - opened < 1500) { succeed(d.nick); return; }
+      if (d.website || Date.now() - opened < 1500) { succeed(d.nick, fakeCode()); return; }
 
       var body = JSON.stringify({ nick: d.nick, coin: d.coin, side: d.side, avg: d.avg, lev: d.lev || null, note: d.note || null });
       btn.disabled = true;
@@ -616,7 +644,7 @@
         return res.json().catch(function () { return null; }).then(function (j) { return { res: res, j: j }; });
       }).then(function (r) {
         var st = r.res.status, j = r.j || {};
-        if (r.res.ok && j.ok) { succeed(d.nick); return; }
+        if (r.res.ok && j.ok) { succeed(d.nick, typeof j.code === 'string' && CODE_OK.test(j.code) ? j.code : ''); return; }
         if (st === 429) { say('잠깐만요 — 1시간에 5번까지 보낼 수 있어요.', 'warn'); return; }
         if (st === 400 && j.field) {
           var f2 = fieldOf(j.field);
@@ -637,75 +665,41 @@
     });
   }
 
-  /* ───────── 내 답 찾기 (answers.json · add_answer.py 로 추가) ───────── */
-  var ansBox = $('#ans-recent'), ansRes = $('#af-result'), af = $('#af'), afNick = $('#af-nick');
-  if (ansRes && af && afNick) {
-    var ANSWERS = null;
+  /* ───────── 상담소 답 (11/3 consult-private-answers-1103 · 사용자 '답은 별명과 확인 코드로 본인만') ─────────
+     ① 답변 사례 = answers.json(사용자가 고른 공개 사례만 · 자동으로 안 씀). 있으면 예시 자리에 최신 3개(1개면 예시 1장 옆에), 없으면 예시 그대로
+     ② 내 답 왔나 보기 = 별명 + 확인 코드 → POST <접수 주소>/answer — 답은 공개 파일에 없음, 그 사람만 봄 */
+  var mk = function (tag, cls, text) { var x = document.createElement(tag); if (cls) x.className = cls; if (text != null) x.textContent = text; return x; };
+  var fmtAvg = function (s) { var m = /^(\d+)(\.\d+)?$/.exec(String(s || '')); return m ? m[1].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (m[2] || '') : String(s || ''); };
+  var mmdd = function (at) { return /^\d{4}-\d{2}-\d{2}/.test(String(at || '')) ? Number(at.slice(5, 7)) + '/' + Number(at.slice(8, 10)) : ''; };
+  var qLine = function (a) {
+    var sd = a.side === 'short' ? '숏' : a.side === 'long' ? '롱' : '';
+    return a.nick + (a.coin ? ' · ' + a.coin + (sd ? ' ' + sd : '') + (a.avg ? ' · 평단 ' + fmtAvg(a.avg) : '') : '');
+  };
+  (function () {                                       // ① 공개 사례 자리
+    var casesBox = $('#cases'), casesMeta = $('#cases-meta');
+    if (!casesBox) return;
     var IMG_OK = /^answers\/[A-Za-z0-9_.\-]+\.(png|jpe?g|webp)$/;
     var URL_OK = /^https:\/\/(www\.)?threads\.(com|net)\/[^\s"'<>]+$/;
-    var keyOf = function (s) { return cleanNick(s).replace(/\s+/g, '').replace(/\(\d{1,3}\)$/, '').toLowerCase(); };
-    var mk = function (tag, cls, text) { var x = document.createElement(tag); if (cls) x.className = cls; if (text != null) x.textContent = text; return x; };
-    var clean = function (arr) {                       // 항목마다 걸러 읽기 — 깨진 한 항목이 전체를 못 죽이게
+    var clean = function (arr) {
       var out = [];
       (Array.isArray(arr) ? arr : []).forEach(function (a) {
         try {
           if (!a || typeof a !== 'object') return;
           var nick = typeof a.nick === 'string' ? a.nick.slice(0, 20) : '';
-          var sum = typeof a.summary === 'string' ? a.summary.slice(0, 160) : '';
-          var url = typeof a.url === 'string' && URL_OK.test(a.url) ? a.url : '';
-          var img = typeof a.img === 'string' && IMG_OK.test(a.img) ? a.img : '';
-          var thumb = typeof a.thumb === 'string' && IMG_OK.test(a.thumb) ? a.thumb : img;
-          var at = typeof a.at === 'string' ? a.at.slice(0, 25) : '';
-          // 상담 답 칸 (11/3 consult-real-answers-1103) — 없거나 이상하면 빈 값(예전 답은 요약만으로 그대로 그림)
-          var coin = typeof a.coin === 'string' && /^[A-Z0-9\uAC00-\uD7A3]{1,20}$/.test(a.coin) ? a.coin : '';
-          var side = a.side === 'long' || a.side === 'short' ? a.side : '';
-          var avg = typeof a.avg === 'string' && /^\d{1,13}(\.\d{1,12})?$/.test(a.avg) ? a.avg : '';
           var lines = (Array.isArray(a.lines) ? a.lines : []).filter(function (x) { return typeof x === 'string' && x.trim(); })
             .slice(0, 2).map(function (x) { return x.slice(0, 80); });
-          var mid = typeof a.mid === 'string' && IMG_OK.test(a.mid) ? a.mid : '';
-          if (!nick || (!sum && !url && !lines.length)) return;
-          out.push({ nick: nick, key: keyOf(nick), sum: sum, url: url, img: img, thumb: thumb, mid: mid, at: at,
-                     coin: coin, side: side, avg: avg, lines: lines });
+          var sum = typeof a.summary === 'string' ? a.summary.slice(0, 160) : '';
+          var img = typeof a.img === 'string' && IMG_OK.test(a.img) ? a.img : '';
+          if (!nick || (!sum && !lines.length)) return;
+          out.push({ nick: nick, sum: sum, lines: lines, img: img, mid: typeof a.mid === 'string' && IMG_OK.test(a.mid) ? a.mid : '',
+                     url: typeof a.url === 'string' && URL_OK.test(a.url) ? a.url : '', at: typeof a.at === 'string' ? a.at.slice(0, 25) : '',
+                     coin: typeof a.coin === 'string' && /^[A-Z0-9가-힣]{1,20}$/.test(a.coin) ? a.coin : '',
+                     side: a.side === 'long' || a.side === 'short' ? a.side : '',
+                     avg: typeof a.avg === 'string' && /^\d{1,13}(\.\d{1,12})?$/.test(a.avg) ? a.avg : '' });
         } catch (e) { /* 건너뜀 */ }
       });
       out.sort(function (x, y) { return x.at < y.at ? 1 : x.at > y.at ? -1 : 0; });
       return out;
-    };
-    var card = function (a) {
-      var row = mk('div', 'ans');
-      if (a.img) {
-        var link = mk('a', 'ans-thumb');
-        link.href = a.img;
-        link.setAttribute('data-cap', a.nick + (a.sum ? ' · ' + a.sum : ''));
-        var im = mk('img');
-        im.src = a.thumb || a.img; im.alt = a.nick + ' 답 카드'; im.width = 64; im.height = 80; im.loading = 'lazy';
-        link.appendChild(im);
-        row.appendChild(link);
-      } else {
-        row.appendChild(mk('span', 'ans-thumb none'));
-      }
-      var body = mk('div', 'ans-body');
-      var head = mk('p', 'ans-head');
-      head.appendChild(mk('strong', 'ans-nick', a.nick));
-      if (/^\d{4}-\d{2}-\d{2}/.test(a.at)) head.appendChild(mk('span', 'ans-date', a.at.slice(5, 7) + '/' + a.at.slice(8, 10)));
-      body.appendChild(head);
-      if (a.sum) body.appendChild(mk('p', 'ans-sum', a.sum));
-      if (a.url) {
-        var l = mk('a', 'ans-link', '스레드에서 보기 \u2197');
-        l.href = a.url; l.target = '_blank'; l.rel = 'noopener';
-        body.appendChild(l);
-      }
-      row.appendChild(body);
-      return row;
-    };
-    /* 상담소 '최근 답변' (11/3 consult-real-answers-1103): answers.json 에 실제 답이 있으면 예시 카드 자리(#cases)를 최신 3개로
-       질문자 줄 '옥토 · SOL 롱 · 평단 98.4' + 그림(600×750 mid) + 답 두 줄(첫 줄 굵게) + '11/3 · 스레드에서 보기 →'
-       1개뿐이면 예시 1장을 옆에 남김(넓은 화면 = 같은 폭 칸으로 꽉 채우는 규칙 · 카드 한 장이 칸 전체로 커지지 않게). 없으면 예시 그대로 */
-    var casesBox = $('#cases'), casesMeta = $('#cases-meta');
-    var fmtAvg = function (s) { var m = /^(\d+)(\.\d+)?$/.exec(String(s || '')); return m ? m[1].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (m[2] || '') : String(s || ''); };
-    var mmdd = function (at) { return /^\d{4}-\d{2}-\d{2}/.test(at) ? Number(at.slice(5, 7)) + '/' + Number(at.slice(8, 10)) : ''; };
-    var qLine = function (a) {
-      return a.nick + (a.coin ? ' · ' + a.coin + (a.side ? ' ' + (a.side === 'short' ? '숏' : '롱') : '') + (a.avg ? ' · 평단 ' + fmtAvg(a.avg) : '') : '');
     };
     var caseCard = function (a) {
       var art = mk('article', 'case real'), q = mk('p', 'case-q'), d = mmdd(a.at);
@@ -725,65 +719,112 @@
       if (a.lines[1]) ans.appendChild(document.createTextNode(a.lines[1]));
       art.appendChild(ans);
       if (a.url) {
-        var go = mk('a', 'case-link', (d ? d + ' · ' : '') + '스레드에서 보기 \u2192');
+        var go = mk('a', 'case-link', (d ? d + ' · ' : '') + '스레드에서 보기 →');
         go.href = a.url; go.target = '_blank'; go.rel = 'noopener';
         art.appendChild(go);
       }
       return art;
     };
-    var renderCases = function () {
-      if (!casesBox || !ANSWERS || !ANSWERS.length) return;       // 실제 답 없음 → 예시 그대로
-      var real = ANSWERS.slice(0, 3), ex = $$('.case', casesBox).filter(function (c) { return !c.classList.contains('real'); });
-      var keep = real.length < 2 && ex.length ? ex[0].cloneNode(true) : null;   // 복제본 — 같은 노드를 다시 붙이면 크롬이 가로 넘김을 그 카드로 다시 맞춰(스냅) 첫 카드가 밀려남
-      casesBox.textContent = '';
-      real.forEach(function (a) { casesBox.appendChild(caseCard(a)); });
-      if (keep) casesBox.appendChild(keep);
-      casesBox.scrollLeft = 0;
-      casesBox.setAttribute('data-real', String(real.length));
-      if (casesMeta) casesMeta.textContent = '최근 답변' + (mmdd(real[0].at) ? ' · ' + mmdd(real[0].at) : '');
-    };
-    var renderRecent = function (failed) {
-      if (!ansBox) return;                             // 최근 답변 칸은 지금 없음(검색만)
-      ansBox.textContent = '';
-      if (failed) { ansBox.appendChild(mk('p', 'ans-empty', '답변을 불러오지 못했어요. 새로고침해 주세요.')); return; }
-      if (!ANSWERS.length) {
-        var p = mk('p', 'ans-empty', '아직 답변 없음 \u2014 ');
-        var go = mk('a', null, '첫 사연을 보내 보세요');
-        go.href = '#consult';
-        p.appendChild(go);
-        ansBox.appendChild(p);
-        return;
-      }
-      ANSWERS.slice(0, 5).forEach(function (a) { ansBox.appendChild(card(a)); });
-    };
-    var search = function (q) {
-      ansRes.textContent = '';
-      var key = keyOf(q);
-      if (!key) return;
-      if (ANSWERS === null) { ansRes.appendChild(mk('p', 'ans-msg', '답변을 불러오는 중이에요. 잠시 뒤 다시 눌러 주세요.')); return; }
-      var hits = ANSWERS.filter(function (a) { return a.key === key; });
-      if (!hits.length) {
-        ansRes.appendChild(mk('p', 'ans-msg', '\'' + cleanNick(q) + '\' 답은 아직 없어요. 사연이 많으면 골라서 답해요.'));
-        return;
-      }
-      ansRes.appendChild(mk('p', 'ans-msg', '\'' + cleanNick(q) + '\' 답 ' + hits.length + '개'));
-      var list = mk('div', 'ans-list');
-      hits.forEach(function (a) { list.appendChild(card(a)); });
-      ansRes.appendChild(list);
-    };
-    af.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var q = cleanNick(afNick.value);
-      search(q);
-      if (q) { try { localStorage.setItem(NICK_KEY, q); } catch (x) { /* 저장 막힘 */ } }
-    });
-    try { var saved = localStorage.getItem(NICK_KEY); if (saved && !afNick.value) afNick.value = saved; } catch (e) { /* 저장 막힘 */ }
     fetch('answers.json?t=' + Math.floor(Date.now() / 60000), { cache: 'no-store' })
       .then(function (r) { return r.ok ? r.json() : []; })
-      .then(function (j) { ANSWERS = clean(j); renderRecent(false); renderCases(); })
-      .catch(function () { ANSWERS = []; renderRecent(true); });
+      .then(function (j) {
+        var list = clean(j);
+        if (!list.length) return;                      // 고른 사례 없음 → 예시 그대로
+        var real = list.slice(0, 3), ex = $$('.case', casesBox).filter(function (c) { return !c.classList.contains('real'); });
+        var keep = real.length < 2 && ex.length ? ex[0].cloneNode(true) : null;   // 복제본 — 같은 노드를 다시 붙이면 크롬이 그 카드로 다시 스냅
+        casesBox.textContent = '';
+        real.forEach(function (a) { casesBox.appendChild(caseCard(a)); });
+        if (keep) casesBox.appendChild(keep);
+        casesBox.scrollLeft = 0;
+        casesBox.setAttribute('data-real', String(real.length));
+        if (casesMeta) casesMeta.textContent = '답변 사례' + (mmdd(real[0].at) ? ' · ' + mmdd(real[0].at) : '');
+      })
+      .catch(function () { /* 예시 그대로 */ });
+  })();
+
+  var ansRes = $('#af-result'), af = $('#af'), afNick = $('#af-nick'), afCode = $('#af-code');
+  if (ansRes && af && afNick && afCode) {                // ② 내 답 왔나 보기 — 별명 + 확인 코드
+    var ENDPOINT_A = String(window.CONSULT_ENDPOINT || '').trim().replace(/\/+$/, '');
+    ENDPOINT_A = ENDPOINT_A ? ENDPOINT_A + '/answer' : '';
+    var DATA_IMG = /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/;
+    var afBtn = $('button', af);
+    var normCode = function (s) { s = String(s || ''); if (s.normalize) s = s.normalize('NFKC'); return s.toUpperCase().replace(/[\s\-]/g, ''); };
+    var myCard = function (a) {
+      var art = mk('article', 'case mine'), q = mk('p', 'case-q');
+      q.appendChild(mk('span', null, qLine(a)));
+      art.appendChild(q);
+      if (a.price_line) art.appendChild(mk('p', 'case-p', a.price_line));
+      if (a.img) {
+        var link = mk('a', 'case-img');
+        link.href = a.img;
+        link.setAttribute('data-cap', qLine(a));
+        var im = mk('img');
+        im.src = a.img; im.alt = qLine(a) + ' 답 그림'; im.width = 1080; im.height = 1350;
+        link.appendChild(im);
+        art.appendChild(link);
+      }
+      var ans = mk('p', 'case-a');
+      ans.appendChild(mk('b', null, a.lines[0] || ''));
+      if (a.lines[1]) ans.appendChild(document.createTextNode(a.lines[1]));
+      art.appendChild(ans);
+      art.appendChild(mk('p', 'case-f', (mmdd(a.answered_at) ? mmdd(a.answered_at) + ' 답 · ' : '') + '차트 상황만 공유 · 매수·매도 권유 아님'));
+      return art;
+    };
+    var cleanItem = function (x) {                     // 서버 응답도 칸마다 걸러 씀
+      if (!x || typeof x !== 'object') return null;
+      var lines = (Array.isArray(x.lines) ? x.lines : []).filter(function (l) { return typeof l === 'string' && l.trim(); }).slice(0, 2).map(function (l) { return l.slice(0, 120); });
+      return { nick: typeof x.nick === 'string' ? x.nick.slice(0, 20) : '', coin: typeof x.coin === 'string' ? x.coin.slice(0, 20) : '',
+               side: x.side === 'long' || x.side === 'short' ? x.side : '', avg: typeof x.avg === 'string' ? x.avg.slice(0, 30) : '',
+               at: typeof x.at === 'string' ? x.at : '', answered_at: typeof x.answered_at === 'string' ? x.answered_at : '',
+               state: x.state === 'answered' && lines.length ? 'answered' : 'pending', lines: lines,
+               price_line: typeof x.price_line === 'string' ? x.price_line.slice(0, 120) : '',
+               img: typeof x.img === 'string' && DATA_IMG.test(x.img) ? x.img : '' };
+    };
+    var show = function (items) {
+      ansRes.textContent = '';
+      items = (Array.isArray(items) ? items : []).map(cleanItem).filter(Boolean);
+      if (!items.length) {
+        ansRes.appendChild(mk('p', 'ans-msg', '답이 없어요 — 별명과 확인 코드를 다시 확인해 주세요. 사연이 많으면 골라서 답해요.'));
+        return;
+      }
+      items.forEach(function (a) {
+        if (a.state === 'answered') ansRes.appendChild(myCard(a));
+        else ansRes.appendChild(mk('p', 'ans-msg', qLine(a) + (mmdd(a.at) ? ' (' + mmdd(a.at) + ' 접수)' : '') + ' — 접수 확인됐어요. 아직 답 준비 중이에요.'));
+      });
+    };
+    var busy = false;
+    af.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var nick = cleanNick(afNick.value), code = normCode(afCode.value);
+      ansRes.textContent = '';
+      if (!nick) { ansRes.appendChild(mk('p', 'ans-msg', '별명을 적어 주세요.')); afNick.focus(); return; }
+      if (!CODE_OK.test(code)) { ansRes.appendChild(mk('p', 'ans-msg', '확인 코드 6자리를 적어 주세요 — 접수 때 받은 코드예요.')); afCode.focus(); return; }
+      if (!ENDPOINT_A) { ansRes.appendChild(mk('p', 'ans-msg', '지금은 답 보기 준비 중이에요.')); return; }
+      if (busy) return;
+      busy = true;
+      if (afBtn) afBtn.disabled = true;
+      ansRes.appendChild(mk('p', 'ans-msg', '찾는 중…'));
+      try { localStorage.setItem(NICK_KEY, nick); localStorage.setItem(CODE_KEY, code); } catch (x) { /* 저장 막힘 */ }
+      var ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+      var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 15000);
+      fetch(ENDPOINT_A, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nick: nick, code: code }),
+                          credentials: 'omit', cache: 'no-store', signal: ctrl ? ctrl.signal : undefined })
+        .then(function (res) { return res.json().catch(function () { return null; }).then(function (j) { return { res: res, j: j }; }); })
+        .then(function (r) {
+          if (r.res.status === 429) { ansRes.textContent = ''; ansRes.appendChild(mk('p', 'ans-msg', '잠깐만요 — 10분에 10번까지 볼 수 있어요.')); return; }
+          if (!r.res.ok || !r.j || !r.j.ok) { ansRes.textContent = ''; ansRes.appendChild(mk('p', 'ans-msg', '불러오지 못했어요. 잠시 뒤 다시 해 주세요.')); return; }
+          show(r.j.items);
+        })
+        .catch(function () { ansRes.textContent = ''; ansRes.appendChild(mk('p', 'ans-msg', '불러오지 못했어요. 인터넷 연결을 확인해 주세요.')); })
+        .then(function () { clearTimeout(timer); busy = false; if (afBtn) afBtn.disabled = false; });
+    });
+    try {
+      var savedN = localStorage.getItem(NICK_KEY), savedC = localStorage.getItem(CODE_KEY);
+      if (savedN && !afNick.value) afNick.value = savedN;
+      if (savedC && !afCode.value && CODE_OK.test(savedC)) afCode.value = savedC;
+    } catch (e) { /* 저장 막힘 */ }
     var find = $('#find');
-    if (find) find.addEventListener('toggle', function () { if (find.open && !afNick.value) afNick.focus(); });
+    if (find) find.addEventListener('toggle', function () { if (find.open) (afNick.value ? afCode : afNick).focus(); });
   }
 
   /* ───────── 시그널 탭: 막대 자라기(CSS) + 숫자 올라가기 — 처음 한 번만, '움직임 줄이기' 설정이면 안 함 ───────── */

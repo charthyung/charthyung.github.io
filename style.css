@@ -460,3 +460,23 @@ body { padding-bottom: calc(58px + env(safe-area-inset-bottom)); }
 .disc summary:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; border-radius: 4px; }
 .disc ul { margin: 10px 0 0; padding: 12px 14px 12px 28px; text-align: left; background: var(--bg2); border: 1px solid var(--line); border-radius: var(--r-ctl); color: var(--sub); }
 .disc li + li { margin-top: 4px; }
+
+/* ══ 상담소 본인 답 (11/3 consult-private-answers-1103 — '답은 별명과 확인 코드로 본인만') ══
+   보낸 뒤 확인 코드 상자(금색 테두리 · 코드 24) · 내 답 왔나 보기 = 별명 + 코드 + 보기 한 줄 · 본인 답 카드(사례 카드와 같은 모양, 가운데 좁게) */
+.cf-code { display: grid; gap: 8px; justify-items: center; padding: 14px; border: 1px solid var(--gold); border-radius: var(--r-card); background: var(--gold-tint); text-align: center; }
+.cf-code[hidden] { display: none; }
+.cf-code p { margin: 0; }
+.cc-l { font-size: 13px; font-weight: 700; color: var(--text); }
+.cc-nick { font-weight: 400; color: var(--sub); }
+.cc-v { font-size: 24px; font-weight: 800; line-height: 1.2; letter-spacing: .22em; padding-left: .22em; color: var(--gold); font-variant-numeric: tabular-nums; }
+.cc-n { font-size: 13px; color: var(--sub); }
+.cf-code .btn-find { height: 36px; padding: 0 16px; font-size: 13px; }
+.af { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 8px; }
+.af input { flex: none; }
+#af-code { text-transform: uppercase; letter-spacing: .06em; }
+#af-code::placeholder { text-transform: none; letter-spacing: 0; }
+.btn-find:disabled { opacity: .5; cursor: default; }
+.case.mine { width: 100%; max-width: 360px; margin: 12px auto 0; text-align: left; }
+.case-p { margin: -6px 0 0; padding: 0 14px 10px; font-size: 12px; line-height: 1.45; color: var(--sub); font-variant-numeric: tabular-nums; }
+.case-f { margin: 0; padding: 0 14px 12px; font-size: 12px; color: var(--faint); }
+.case.mine .case-a { padding-bottom: 6px; }

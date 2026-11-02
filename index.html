@@ -32,7 +32,7 @@
 </script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="style.css?v=c11030520">
+<link rel="stylesheet" href="style.css?v=p11030412">
 </head>
 <body>
 <svg width="0" height="0" class="sprite" aria-hidden="true" focusable="false">
@@ -159,7 +159,7 @@
     <div class="wrap">
       <p class="th-ey">상담소</p>
       <h1 id="consult-title" class="th-t">익명 차트 상담</h1>
-      <p class="th-d">이름·연락처 없이 접수 · 답은 스레드에 별명으로</p>
+      <p class="th-d">이름·연락처 없이 접수 · 답은 별명과 확인 코드로 본인만</p>
       <p class="cases-meta" id="cases-meta">예시 · 11/2 23:45 실제 차트</p>
       <div class="cases" id="cases" aria-labelledby="cases-meta">
         <article class="case">
@@ -218,14 +218,23 @@
         </div>
         <p class="cf-closed" id="cf-closed" hidden>지금은 접수 준비 중이에요. 곧 열어요.</p>
         <p class="cf-msg" id="cf-msg" role="status" aria-live="polite"></p>
+        <!-- 보낸 뒤 확인 코드 (11/3 consult-private-answers-1103) — 서버 응답에만 있음 · 이 기기에도 기억 -->
+        <div class="cf-code" id="cf-code" hidden>
+          <p class="cc-l">확인 코드 <span class="cc-nick" id="cf-code-n"></span></p>
+          <p class="cc-v" id="cf-code-v"></p>
+          <button type="button" class="btn-find" id="cf-code-copy">코드 복사</button>
+          <p class="cc-n">이 코드가 있어야 답을 볼 수 있어요 · 캡처해 두세요</p>
+        </div>
         <button type="submit" class="btn-primary" id="cf-submit">형한테 보내기</button>
       </form>
       <details class="find" id="find">
         <summary>내 답 왔나 보기 <i aria-hidden="true">→</i></summary>
         <form id="af" class="af" role="search" autocomplete="off">
           <label class="sr-only" for="af-nick">별명</label>
-          <input id="af-nick" type="text" maxlength="16" placeholder="접수 때 쓴 별명" autocorrect="off" autocapitalize="off" spellcheck="false">
-          <button type="submit" class="btn-find">찾기</button>
+          <input id="af-nick" type="text" maxlength="16" placeholder="별명" autocorrect="off" autocapitalize="off" spellcheck="false">
+          <label class="sr-only" for="af-code">확인 코드</label>
+          <input id="af-code" type="text" maxlength="9" placeholder="확인 코드" autocorrect="off" autocapitalize="characters" spellcheck="false">
+          <button type="submit" class="btn-find">보기</button>
         </form>
         <div id="af-result" class="ans-result" aria-live="polite"></div>
       </details>
@@ -256,6 +265,6 @@
 
 <noscript><p class="noscript wrap">계산기와 상담 접수는 자바스크립트를 켜야 동작해요.</p></noscript>
 <script src="config.js"></script>
-<script src="app.js?v=c11030520"></script>
+<script src="app.js?v=p11030412"></script>
 </body>
 </html>
