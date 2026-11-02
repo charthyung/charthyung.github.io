@@ -25,7 +25,7 @@
 (function () {
   var h = (location.hash || '').slice(1), t = 'signals', d = document.documentElement;
   if (/^(calc|calc-[a-z]+|avg|breakeven|liq|size|funding|streak)$/.test(h)) t = 'calc';
-  else if (h === 'consult' || h === 'answers') t = h;
+  else if (h === 'consult' || h === 'answers') t = 'consult';
   d.className += ' js';
   d.setAttribute('data-tab', t);
 })();
@@ -47,26 +47,19 @@
   <a class="top-link" href="https://www.threads.com/@charthyung" target="_blank" rel="noopener">@charthyung</a>
 </header>
 
-<!-- 탭바: 폰 = 화면 아래 고정 · 넓은 화면 = 위쪽. 탭마다 주소(#signals · #calc · #consult · #answers, 계산기 하위 = #calc-funding 등) -->
+<!-- 탭바: 폰 = 화면 아래 고정 · 넓은 화면 = 위쪽. 주소 #signals · #calc(-avg / -breakeven / -liq) · #consult -->
 <nav class="tabbar" aria-label="메뉴">
   <a href="#signals" data-tab="signals"><span class="ti" aria-hidden="true">✨</span><span class="tl">시그널</span></a>
   <a href="#calc" data-tab="calc"><span class="ti" aria-hidden="true">🧮</span><span class="tl">계산기</span></a>
   <a href="#consult" data-tab="consult"><span class="ti" aria-hidden="true">🙋</span><span class="tl">상담소</span></a>
-  <a href="#answers" data-tab="answers"><span class="ti" aria-hidden="true">🔎</span><span class="tl">내 답</span></a>
 </nav>
 
 <main>
-  <!-- ✨ 시그널 (첫 화면): 시그널 칩 + 물타기 미니 계산기 + 실시간 버튼 -->
+  <!-- ✨ 시그널 (첫 화면): 카드 목록 + 실시간 버튼 -->
   <section class="tab" id="tab-signals" data-tab="signals" aria-labelledby="signals-title">
     <div class="signals wrap">
 <!-- SIGNALS:BEGIN -->
-    <div class="sig-head"><h2 id="signals-title">이번 주 시그널 잘 뜬 코인</h2><span class="sig-head-r" aria-hidden="true">4시간 최대</span></div>
-    <ul class="sig-chips">
-      <li><a class="sig-chip gold" href="img/sig_WLD_1793319300_a9f9e0b8.png" data-cap="WLD · 금색 시그널 · 10/30 · 4시간 최대 ↑7.7%" aria-label="WLD 금색 시그널 4시간 최대 상승 7.7%, 차트 카드 크게 보기"><span class="c">WLD</span><span class="p">↑7.7%</span></a></li>
-      <li><a class="sig-chip purple" href="img/sig_UNI_1793289900_b6a47f30.png" data-cap="UNI · 보라 시그널 · 10/30 · 4시간 최대 ↓6.6%" aria-label="UNI 보라 시그널 4시간 최대 하락 6.6%, 차트 카드 크게 보기"><span class="c">UNI</span><span class="p">↓6.6%</span></a></li>
-      <li><a class="sig-chip purple" href="img/sig_NEAR_1793136600_23aacc2e.png" data-cap="NEAR · 보라 시그널 · 10/28 · 4시간 최대 ↓3.1%" aria-label="NEAR 보라 시그널 4시간 최대 하락 3.1%, 차트 카드 크게 보기"><span class="c">NEAR</span><span class="p">↓3.1%</span></a></li>
-    </ul>
-    <p class="sig-foot-m">누르면 차트 카드 · 모든 시그널이 이렇게 가진 않음</p>
+    <div class="sig-head"><h2 id="signals-title">이번 주 시그널 잘 뜬 코인</h2></div>
     <ol class="sig-list">
       <li class="sig">
         <a class="sig-thumb" href="img/sig_WLD_1793319300_a9f9e0b8.png" data-cap="WLD · 금색 시그널 · 10/30 · 4시간 최대 ↑7.7%"><img src="img/sig_WLD_1793319300_a9f9e0b8_t.jpg" width="72" height="90" alt="WLD 5분봉 차트 — 금색 시그널 뒤 4시간 최대 ↑7.7%" loading="lazy" decoding="async"></a>
@@ -84,27 +77,8 @@
         <p class="sig-num purple" aria-label="4시간 안 최대 하락 3.1%"><span aria-hidden="true">↓3.1%</span><small aria-hidden="true">4시간 최대</small></p>
       </li>
     </ol>
-    <p class="sig-foot">시그널 뜬 뒤 4시간 안 최대 움직임 · 모든 시그널이 이렇게 가진 않음 · 11월 2일 스레드에 올린 것</p>
+    <p class="sig-foot">모든 시그널이 이렇게 가진 않음 · 11월 2일 기준</p>
 <!-- SIGNALS:END -->
-    </div>
-    <div class="mini wrap">
-      <div class="panel mini-panel" id="mini" data-calc="avg">
-        <div class="mini-head"><h2 class="mini-title">💧 물타기 계산기</h2><a class="mini-more" href="#calc">계산기 6개 →</a></div>
-        <div class="seg seg-side" role="radiogroup" aria-label="롱 / 숏">
-          <label><input type="radio" name="mini-side" value="long" checked><span>롱</span></label>
-          <label><input type="radio" name="mini-side" value="short"><span>숏</span></label>
-        </div>
-        <div class="grid2">
-          <label class="field"><span class="label">지금 평단</span><input type="text" inputmode="decimal" data-num data-k="p1" placeholder="예: 100"></label>
-          <label class="field"><span class="label">지금 수량</span><input type="text" inputmode="decimal" data-num data-k="q1" placeholder="예: 10"></label>
-          <label class="field"><span class="label">추가 가격</span><input type="text" inputmode="decimal" data-num data-k="p2" placeholder="예: 80"></label>
-          <label class="field"><span class="label">추가 수량</span><input type="text" inputmode="decimal" data-num data-k="q2" placeholder="예: 10"></label>
-        </div>
-        <div class="out" aria-live="polite">
-          <div class="o-row o-main"><span class="o-k">새 평단</span><output class="o-v" data-o="avg">—</output></div>
-          <div class="o-row o-main"><span class="o-k">본전까지</span><span class="o-vw"><output class="o-v" data-o="be">—</output><small class="o-h" data-o="be_h"></small></span></div>
-        </div>
-      </div>
     </div>
     <div class="home-cta wrap">
       <a class="btn-zetro" href="https://ath.zetro.io/" target="_blank" rel="noopener">
@@ -114,18 +88,14 @@
     </div>
   </section>
 
-  <!-- 🧮 계산기: 6개 = 하위 탭(아이콘 + 한 줄 설명), 누르면 아래에 열림 -->
+  <!-- 🧮 계산기: 물타기 · 본전까지 · 청산가 (포지션 크기·펀딩비·연패는 _보관\계산기3개_… 에) -->
   <section class="tab calc" id="tab-calc" data-tab="calc" aria-labelledby="calc-title">
     <div class="wrap">
       <h2 id="calc-title" class="tab-title">계산기</h2>
-      <p class="sec-sub">골라서 숫자만 넣으면 바로 계산돼요.</p>
       <div class="subtabs" role="tablist" aria-label="계산기 고르기">
-        <button type="button" role="tab" id="t-avg" aria-controls="avg" aria-selected="true"><span class="st-i" aria-hidden="true">💧</span><span class="st-t">물타기 평단</span><span class="st-d">더 사면 새 평단은?</span></button>
-        <button type="button" role="tab" id="t-breakeven" aria-controls="breakeven" aria-selected="false" tabindex="-1"><span class="st-i" aria-hidden="true">⚖️</span><span class="st-t">본전까지</span><span class="st-d">잃은 만큼 되찾으려면</span></button>
-        <button type="button" role="tab" id="t-liq" aria-controls="liq" aria-selected="false" tabindex="-1"><span class="st-i" aria-hidden="true">⚠️</span><span class="st-t">청산가</span><span class="st-d">격리 대략 청산 위치</span></button>
-        <button type="button" role="tab" id="t-size" aria-controls="size" aria-selected="false" tabindex="-1"><span class="st-i" aria-hidden="true">📏</span><span class="st-t">포지션 크기</span><span class="st-d">손절 기준 진입 크기</span></button>
-        <button type="button" role="tab" id="t-funding" aria-controls="funding" aria-selected="false" tabindex="-1"><span class="st-i" aria-hidden="true">⏱️</span><span class="st-t">펀딩비</span><span class="st-d">들고 있는 동안 비용</span></button>
-        <button type="button" role="tab" id="t-streak" aria-controls="streak" aria-selected="false" tabindex="-1"><span class="st-i" aria-hidden="true">📉</span><span class="st-t">연패</span><span class="st-d">연속 손절하면 시드는</span></button>
+        <button type="button" role="tab" id="t-avg" aria-controls="avg" aria-selected="true"><span class="st-i" aria-hidden="true">💧</span><span class="st-t">물타기</span><span class="st-d">새 평단</span></button>
+        <button type="button" role="tab" id="t-breakeven" aria-controls="breakeven" aria-selected="false" tabindex="-1"><span class="st-i" aria-hidden="true">⚖️</span><span class="st-t">본전까지</span><span class="st-d">필요한 상승률</span></button>
+        <button type="button" role="tab" id="t-liq" aria-controls="liq" aria-selected="false" tabindex="-1"><span class="st-i" aria-hidden="true">⚠️</span><span class="st-t">청산가</span><span class="st-d">격리 대략값</span></button>
       </div>
 
     <!-- 물타기 평단 -->
@@ -147,7 +117,7 @@
         <div class="o-row"><span class="o-k">총 수량</span><output class="o-v sm" data-o="qty">—</output></div>
         <div class="o-row"><span class="o-k">평단 변화</span><output class="o-v sm" data-o="chg">—</output></div>
       </div>
-      <p class="note">본전까지 = 추가 가격에서 새 평단까지 · 수수료·펀딩비는 빼고 계산</p>
+      <p class="note">수수료·펀딩비 빼고 계산</p>
     </div>
 
     <!-- 본전까지 -->
@@ -178,149 +148,77 @@
         <div class="o-row o-main"><span class="o-k">청산가 (대략)</span><output class="o-v" data-o="liq">—</output></div>
         <div class="o-row o-main"><span class="o-k">진입가에서</span><span class="o-vw"><output class="o-v" data-o="dist">—</output><small class="o-h" data-o="dist_h"></small></span></div>
       </div>
-      <p class="note">거래소·코인·구간마다 다름, 대략값 · 롱 = 진입가 × (1 − 1/레버리지 + 유지증거금률), 숏 = 진입가 × (1 + 1/레버리지 − 유지증거금률)</p>
+      <p class="note">거래소·코인·구간마다 달라요 · 대략값</p>
     </div>
 
-    <!-- 포지션 크기 -->
-    <div class="panel" id="size" role="tabpanel" aria-labelledby="t-size" data-calc="size" hidden>
-      <p class="desc">손절에 걸려도 시드의 몇 %만 잃도록, 얼마나 들어갈지</p>
-      <div class="grid2">
-        <label class="field span2"><span class="label">시드</span><input type="text" inputmode="decimal" data-num data-k="seed" placeholder="예: 1,000,000"></label>
-        <label class="field"><span class="label">감당할 손실</span><span class="suffix"><input type="text" inputmode="decimal" data-num data-k="risk" placeholder="예: 2"><span aria-hidden="true">%</span></span></label>
-        <label class="field"><span class="label">손절폭</span><span class="suffix"><input type="text" inputmode="decimal" data-num data-k="stop" placeholder="예: 5"><span aria-hidden="true">%</span></span></label>
-      </div>
-      <div class="out" aria-live="polite">
-        <div class="o-row o-main"><span class="o-k">포지션 크기</span><output class="o-v" data-o="pos">—</output></div>
-        <div class="o-row o-main"><span class="o-k">필요한 레버리지</span><span class="o-vw"><output class="o-v" data-o="lev">—</output><small class="o-h" data-o="lev_h"></small></span></div>
-        <div class="o-row"><span class="o-k">손절 때 잃는 돈</span><output class="o-v sm" data-o="loss">—</output></div>
-      </div>
-      <p class="note">포지션 크기 = 시드 × 손실% ÷ 손절폭% · 수수료·미끄러짐은 빼고 계산</p>
-    </div>
-
-    <!-- 펀딩비 -->
-    <div class="panel" id="funding" role="tabpanel" aria-labelledby="t-funding" data-calc="funding" hidden>
-      <p class="desc">들고 있는 동안 내거나 받는 펀딩비</p>
-      <div class="seg seg-side" role="radiogroup" aria-label="롱 / 숏">
-        <label><input type="radio" name="funding-side" value="long" checked><span>롱</span></label>
-        <label><input type="radio" name="funding-side" value="short"><span>숏</span></label>
-      </div>
-      <div class="grid2">
-        <label class="field span2"><span class="label">포지션 크기</span><input type="text" inputmode="decimal" data-num data-k="pos" placeholder="예: 10,000,000"></label>
-        <div class="field">
-          <label class="label" for="fund-rate">펀딩비율 <small>8시간당</small></label>
-          <span class="suffix has-sign"><button type="button" class="sign" data-sign-for="fund-rate" aria-label="부호 바꾸기 (+/−)">±</button><input id="fund-rate" type="text" inputmode="decimal" data-num data-neg data-k="rate" placeholder="예: 0.01"><span aria-hidden="true">%</span></span>
-        </div>
-        <label class="field"><span class="label">보유 시간</span><span class="suffix"><input type="text" inputmode="decimal" data-num data-k="hours" placeholder="예: 24"><span aria-hidden="true">시간</span></span></label>
-        <label class="field span2"><span class="label">시드 <small>선택 · 시드 대비 % 계산용</small></span><input type="text" inputmode="decimal" data-num data-k="seed" placeholder="예: 1,000,000"></label>
-      </div>
-      <div class="out" aria-live="polite">
-        <div class="o-row o-main"><span class="o-k" data-o="amt_k">펀딩비</span><span class="o-vw"><output class="o-v" data-o="amt">—</output><small class="o-h" data-o="amt_h"></small></span></div>
-        <div class="o-row o-main"><span class="o-k">시드 대비</span><output class="o-v" data-o="pct">—</output></div>
-        <div class="o-row"><span class="o-k">하루(3번) 기준</span><output class="o-v sm" data-o="day">—</output></div>
-      </div>
-      <p class="note">펀딩비율이 +면 롱이 내고 숏이 받아요(−면 반대) · 8시간마다 정산 기준 대략값, 코인에 따라 4시간·1시간마다 정산하기도 해요</p>
-    </div>
-
-    <!-- 연패 -->
-    <div class="panel" id="streak" role="tabpanel" aria-labelledby="t-streak" data-calc="streak" hidden>
-      <p class="desc">같은 크기로 연달아 손절하면 시드가 얼마나 남는지</p>
-      <div class="grid2">
-        <label class="field span2"><span class="label">시드</span><input type="text" inputmode="decimal" data-num data-k="seed" placeholder="예: 1,000,000"></label>
-        <label class="field"><span class="label">한 번 손절</span><span class="suffix"><input type="text" inputmode="decimal" data-num data-k="loss" placeholder="예: 5"><span aria-hidden="true">%</span></span></label>
-        <label class="field"><span class="label">연패 횟수</span><span class="suffix"><input type="text" inputmode="numeric" data-num data-int data-k="n" placeholder="예: 5"><span aria-hidden="true">번</span></span></label>
-      </div>
-      <div class="out" aria-live="polite">
-        <div class="o-row o-main"><span class="o-k">남는 시드</span><span class="o-vw"><output class="o-v" data-o="left">—</output><small class="o-h" data-o="left_h"></small></span></div>
-        <div class="o-row o-main"><span class="o-k">복구에 필요한 상승률</span><output class="o-v" data-o="need">—</output></div>
-      </div>
-      <p class="note">매번 남은 시드의 같은 %를 잃는다고 보고 계산</p>
-    </div>
     </div>
   </section>
 
-  <!-- 🙋 상담소: 폼(별명 포함) + 접수 안내 -->
+  <!-- 🙋 상담소: 필수 4칸(코인·롱/숏·평단·별명) + 더 적기(레버리지·고민) + 내 답 찾기(같은 탭에서 펼침) -->
   <section class="tab consult" id="tab-consult" data-tab="consult" aria-labelledby="consult-title">
     <div class="wrap">
-    <p class="eyebrow">익명 코인 고민상담소</p>
-    <h1 id="consult-title">물린 코인,<br>익명으로 차트 봐 드림</h1>
-    <ul class="promise">
-      <li>이름·연락처 안 받음</li>
-      <li>고른 사연은 스레드에 익명으로 답함</li>
-    </ul>
-
-    <form id="cf" class="cf" novalidate autocomplete="off">
-      <div class="row2">
-        <div class="field">
-          <label for="cf-coin">코인</label>
-          <input id="cf-coin" name="coin" type="text" inputmode="text" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="20" placeholder="예: SOL" required>
-        </div>
-        <div class="field">
-          <span class="label" id="cf-side-label">롱 / 숏</span>
-          <div class="seg" role="radiogroup" aria-labelledby="cf-side-label">
-            <label><input type="radio" name="side" value="long"><span>롱</span></label>
-            <label><input type="radio" name="side" value="short"><span>숏</span></label>
+      <h1 id="consult-title" class="c-title">물린 코인,<br>익명으로 차트 봐 드림</h1>
+      <p class="c-sub">이름·연락처 안 받음 · 답은 스레드에 익명으로</p>
+      <form id="cf" class="cf" novalidate autocomplete="off">
+        <div class="row2">
+          <div class="field">
+            <label for="cf-coin">코인</label>
+            <input id="cf-coin" name="coin" type="text" inputmode="text" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="20" placeholder="예: SOL" required>
+          </div>
+          <div class="field">
+            <span class="label" id="cf-side-label">롱 / 숏</span>
+            <div class="seg" role="radiogroup" aria-labelledby="cf-side-label">
+              <label><input type="radio" name="side" value="long"><span>롱</span></label>
+              <label><input type="radio" name="side" value="short"><span>숏</span></label>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="row2">
-        <div class="field">
-          <label for="cf-avg">평단</label>
-          <input id="cf-avg" name="avg" type="text" inputmode="decimal" data-num maxlength="24" placeholder="예: 182.5" required>
+        <div class="row2">
+          <div class="field">
+            <label for="cf-avg">평단</label>
+            <input id="cf-avg" name="avg" type="text" inputmode="decimal" data-num maxlength="24" placeholder="예: 182.5" required>
+          </div>
+          <div class="field">
+            <label for="cf-nick">별명 <small>답 찾을 때</small></label>
+            <input id="cf-nick" name="nick" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="12" placeholder="예: 물린고양이" required>
+          </div>
         </div>
-        <div class="field">
-          <label for="cf-lev">레버리지 <small>선택</small></label>
-          <div class="suffix"><input id="cf-lev" name="lev" type="text" inputmode="decimal" data-num maxlength="6" placeholder="예: 10"><span aria-hidden="true">배</span></div>
+        <details class="more">
+          <summary>더 적기 <small>레버리지 · 고민 한 줄</small></summary>
+          <div class="more-body">
+            <div class="field">
+              <label for="cf-lev">레버리지</label>
+              <div class="suffix"><input id="cf-lev" name="lev" type="text" inputmode="decimal" data-num maxlength="6" placeholder="예: 10"><span aria-hidden="true">배</span></div>
+            </div>
+            <div class="field">
+              <label for="cf-note">고민 한 줄</label>
+              <textarea id="cf-note" name="note" rows="2" maxlength="200" placeholder="예: 반등 나올 자리가 있는지 궁금함"></textarea>
+              <div class="count" aria-hidden="true"><span id="cf-count">0</span> / 200</div>
+            </div>
+          </div>
+        </details>
+        <div class="hp" aria-hidden="true">
+          <label for="cf-website">이 칸은 비워 두세요</label>
+          <input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off">
         </div>
-      </div>
-      <div class="field">
-        <label for="cf-note">고민 한 줄 <small>선택</small></label>
-        <textarea id="cf-note" name="note" rows="2" maxlength="200" placeholder="예: 반등 나올 자리가 있는지 궁금함"></textarea>
-        <div class="count" aria-hidden="true"><span id="cf-count">0</span> / 200</div>
-      </div>
-      <div class="field">
-        <label for="cf-nick">답 찾을 때 쓸 별명</label>
-        <input id="cf-nick" name="nick" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="12" placeholder="예: 물린고양이" required aria-describedby="cf-nick-help">
-        <p class="help" id="cf-nick-help">한글·영문·숫자 2~12자, 띄어쓰기 없이 · 이 별명으로 '🔎 내 답' 탭에서 찾아요</p>
-      </div>
-      <div class="hp" aria-hidden="true">
-        <label for="cf-website">이 칸은 비워 두세요</label>
-        <input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off">
-      </div>
-      <p class="cf-closed" id="cf-closed" hidden>지금은 접수 준비 중이에요. 곧 열어요.</p>
-      <p class="cf-msg" id="cf-msg" role="status" aria-live="polite"></p>
-      <button type="submit" class="btn-primary" id="cf-submit">익명으로 보내기</button>
-    </form>
-    <p class="fine">차트에 뜬 것만 보여 드려요. 매수·매도 추천 아님.</p>
-      <div class="guide">
-        <h3 class="guide-title">접수 안내</h3>
-        <ol class="steps">
-          <li>코인 · 롱/숏 · 평단과 <b>별명</b>을 적어 보내요</li>
-          <li>1~2일 안에 스레드 <b>@charthyung</b>과 <a href="#answers">🔎 내 답</a> 탭에 답이 올라와요</li>
-          <li>사연이 많으면 골라서 답해요 · 이름·연락처는 안 받아요</li>
-        </ol>
-      </div>
-    </div>
-  </section>
-
-  <!-- 🔎 내 답: 별명 검색 + 최근 답변 (answers.json — add_answer.py 로만 추가) -->
-  <section class="tab answers" id="tab-answers" data-tab="answers" aria-labelledby="answers-title">
-    <div class="wrap">
-    <h2 id="answers-title">내 답 찾기</h2>
-    <p class="sec-sub">접수할 때 쓴 별명으로 찾아요.</p>
-    <form id="af" class="af" role="search" autocomplete="off">
-      <label class="sr-only" for="af-nick">별명</label>
-      <input id="af-nick" type="text" maxlength="16" placeholder="별명" autocorrect="off" autocapitalize="off" spellcheck="false">
-      <button type="submit" class="btn-find">찾기</button>
-    </form>
-    <div id="af-result" class="ans-result" aria-live="polite"></div>
-    <h3 class="ans-title">최근 답변</h3>
-    <div id="ans-recent" class="ans-list"><p class="ans-empty">불러오는 중…</p></div>
+        <p class="cf-closed" id="cf-closed" hidden>지금은 접수 준비 중이에요. 곧 열어요.</p>
+        <p class="cf-msg" id="cf-msg" role="status" aria-live="polite"></p>
+        <button type="submit" class="btn-primary" id="cf-submit">익명으로 보내기</button>
+      </form>
+      <details class="find" id="find">
+        <summary>내 답 찾기 →</summary>
+        <form id="af" class="af" role="search" autocomplete="off">
+          <label class="sr-only" for="af-nick">별명</label>
+          <input id="af-nick" type="text" maxlength="16" placeholder="접수 때 쓴 별명" autocorrect="off" autocapitalize="off" spellcheck="false">
+          <button type="submit" class="btn-find">찾기</button>
+        </form>
+        <div id="af-result" class="ans-result" aria-live="polite"></div>
+      </details>
     </div>
   </section>
 </main>
 
 <footer class="foot wrap">
-  <a class="threads" href="https://www.threads.com/@charthyung" target="_blank" rel="noopener">스레드 @charthyung</a>
   <p class="disclaimer">투자 권유 아님 · 계산은 참고용</p>
 </footer>
 

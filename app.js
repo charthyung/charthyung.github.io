@@ -222,12 +222,14 @@
     run();
   });
 
-  /* ───────── 앱 탭: ✨시그널 · 🧮계산기 · 🙋상담소 · 🔎내 답 ─────────
-     주소: #signals · #calc · #consult · #answers · 계산기 하위 = #calc-avg … #calc-streak (예전 #funding 도 받음)
+  /* ───────── 앱 탭: ✨시그널 · 🧮계산기 · 🙋상담소 ─────────
+     주소: #signals · #calc · #consult · 계산기 하위 = #calc-avg · #calc-breakeven · #calc-liq
+     예전 주소는 가까운 탭으로: #answers → 상담소(내 답 찾기 펼침) · #calc-funding·#size 등 뺀 계산기 → #calc · #avg 등 → #calc-avg
      탭 이동 = 주소(hash) 바뀜 → 뒤로 가기가 탭 이동. 화면을 다시 불러오지 않고 보이기·숨기기만. */
-  var TABS = ['signals', 'calc', 'consult', 'answers'];
-  var SUBS = ['avg', 'breakeven', 'liq', 'size', 'funding', 'streak'];
-  var TITLES = { signals: '차트보는형 도구함', calc: '계산기 · 차트보는형 도구함', consult: '익명 상담소 · 차트보는형 도구함', answers: '내 답 찾기 · 차트보는형 도구함' };
+  var TABS = ['signals', 'calc', 'consult'];
+  var SUBS = ['avg', 'breakeven', 'liq'];
+  var GONE = ['size', 'funding', 'streak'];            // 2026-11-02 뺀 계산기 (_보관)
+  var TITLES = { signals: '차트보는형 도구함', calc: '계산기 · 차트보는형 도구함', consult: '익명 상담소 · 차트보는형 도구함' };
   var root = document.documentElement;
   var subBtns = $$('.subtabs [role="tab"]');
   var lastSub = 'avg';
@@ -247,7 +249,9 @@
     try { h = decodeURIComponent((location.hash || '').slice(1)); } catch (e) { h = ''; }
     if (TABS.indexOf(h) >= 0) return { tab: h };
     if (/^calc-/.test(h) && SUBS.indexOf(h.slice(5)) >= 0) return { tab: 'calc', sub: h.slice(5) };
-    if (SUBS.indexOf(h) >= 0) return { tab: 'calc', sub: h, fix: '#calc-' + h };      // 예전 주소
+    if (SUBS.indexOf(h) >= 0) return { tab: 'calc', sub: h, fix: '#calc-' + h };      // 예전 주소 #avg 등
+    if (GONE.indexOf(h.replace(/^calc-/, '')) >= 0) return { tab: 'calc', sub: 'avg', fix: '#calc' };
+    if (h === 'answers') return { tab: 'consult', fix: '#consult', find: true };
     return { tab: 'signals' };
   }
   function route(first) {
@@ -260,6 +264,7 @@
     });
     if (r.tab === 'calc') selectSub(r.sub || lastSub);
     if (r.fix) { try { history.replaceState(null, '', r.fix); } catch (e) { /* 파일로 열 때 */ } }
+    if (r.find) { var fd = document.getElementById('find'); if (fd) fd.open = true; }
     document.title = TITLES[r.tab];
     if (first !== true && prev !== r.tab) window.scrollTo(0, 0);
   }
@@ -396,6 +401,8 @@
       if (bad) {
         var f = fieldOf(bad[0]);
         if (f) {
+          var det = f.closest('details');
+          if (det) det.open = true;
           f.classList.add('invalid');
           var inp = $('input:not([type=radio]), textarea', f) || $('input', f);
           if (inp) inp.focus();
@@ -426,7 +433,7 @@
         if (st === 429) { say('잠깐만요 — 1시간에 5번까지 보낼 수 있어요.', 'warn'); return; }
         if (st === 400 && j.field) {
           var f2 = fieldOf(j.field);
-          if (f2) f2.classList.add('invalid');
+          if (f2) { f2.classList.add('invalid'); if (f2.closest('details')) f2.closest('details').open = true; }
           say(j.field === 'note' ? '고민 칸에 쓸 수 없는 내용이 있어요.'
             : j.field === 'nick' ? '별명은 한글·영문·숫자 2~12자로 적어 주세요.' : '입력값을 다시 확인해 주세요.', 'err');
           return;
@@ -445,7 +452,7 @@
 
   /* ───────── 내 답 찾기 (answers.json · add_answer.py 로 추가) ───────── */
   var ansBox = $('#ans-recent'), ansRes = $('#af-result'), af = $('#af'), afNick = $('#af-nick');
-  if (ansBox && ansRes && af && afNick) {
+  if (ansRes && af && afNick) {
     var ANSWERS = null;
     var IMG_OK = /^answers\/[A-Za-z0-9_.\-]+\.(png|jpe?g|webp)$/;
     var URL_OK = /^https:\/\/(www\.)?threads\.(com|net)\/[^\s"'<>]+$/;
@@ -497,6 +504,7 @@
       return row;
     };
     var renderRecent = function (failed) {
+      if (!ansBox) return;                             // 최근 답변 칸은 지금 없음(검색만)
       ansBox.textContent = '';
       if (failed) { ansBox.appendChild(mk('p', 'ans-empty', '답변을 불러오지 못했어요. 새로고침해 주세요.')); return; }
       if (!ANSWERS.length) {
@@ -535,6 +543,8 @@
       .then(function (r) { return r.ok ? r.json() : []; })
       .then(function (j) { ANSWERS = clean(j); renderRecent(false); })
       .catch(function () { ANSWERS = []; renderRecent(true); });
+    var find = $('#find');
+    if (find) find.addEventListener('toggle', function () { if (find.open && !afNick.value) afNick.focus(); });
   }
 
   /* ───────── 시그널 카드 크게 보기 ───────── */
