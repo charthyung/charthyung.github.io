@@ -413,7 +413,7 @@ body { padding-bottom: calc(58px + env(safe-area-inset-bottom)); }
   .hot-c { display: grid; grid-template-columns: minmax(150px, 34%) minmax(0, 1fr); column-gap: 20px; align-items: center; padding: 16px 18px; }
   .hot-c .tc-head { flex-direction: column; align-items: flex-start; gap: 6px; }
   .hot-c .tc-coin { font-size: 28px; }
-  .hot-c .tc-pct { font-size: 40px; }
+  .hot-c .tc-pct { font-size: 40px; margin: 0; text-align: left; }   /* 11/03 세로로 쌓을 땐 코인과 같은 왼쪽 선에 (오른쪽 붙임 margin 이 남아 어긋났음) */
   .hot-c .tc-svg { grid-column: 2; grid-row: 1; margin: 0; }
 }
 .tc-head + .tc-svg { margin-top: 10px; }
