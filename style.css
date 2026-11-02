@@ -451,3 +451,12 @@ body { padding-bottom: calc(58px + env(safe-area-inset-bottom)); }
 .go-live .gl-ic.st .stars svg { width: 11px; height: 11px; }
 .go-live .gl-ic.tg { background: #229ED9; color: #fff; }
 .go-live .gl-ic.tg svg { width: 17px; height: 17px; margin-left: -2px; }
+
+/* 11/03 면책 조항 (바닥줄 아래 접기) */
+.disc { justify-self: center; max-width: 520px; font-size: 12px; line-height: 1.6; color: var(--faint); }
+.disc summary { cursor: pointer; list-style: none; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(255, 255, 255, .2); }
+.disc summary::-webkit-details-marker { display: none; }
+.disc summary:hover, .disc[open] summary { color: var(--sub); }
+.disc summary:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; border-radius: 4px; }
+.disc ul { margin: 10px 0 0; padding: 12px 14px 12px 28px; text-align: left; background: var(--bg2); border: 1px solid var(--line); border-radius: var(--r-ctl); color: var(--sub); }
+.disc li + li { margin-top: 4px; }

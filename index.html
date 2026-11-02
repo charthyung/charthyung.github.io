@@ -32,7 +32,7 @@
 </script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="style.css?v=c11030500">
+<link rel="stylesheet" href="style.css?v=c11030520">
 </head>
 <body>
 <svg width="0" height="0" class="sprite" aria-hidden="true" focusable="false">
@@ -236,6 +236,16 @@
 <!-- 바닥 한 줄: 탭마다 붙는 말만 다름 (상담소 = 사연 많으면 골라서 답함 · 계산기 = 계산은 참고용) -->
 <footer class="foot wrap">
   <p class="disclaimer"><span class="d-consult">사연 많으면 골라서 답함 · </span>투자 권유 아님<span class="d-calc"> · 계산은 참고용</span></p>
+  <!-- 11/03 사용자 "면책 조항 차트형 도구함 사이트에 넣어 두면 좋겠다" → 바닥줄 아래 접어 둔 전문 (모든 탭 공용) -->
+  <details class="disc">
+    <summary>면책 조항</summary>
+    <ul>
+      <li>여기 올라오는 시그널과 숫자는 차트에 뜬 걸 그대로 공유하는 정보예요. 투자 권유나 자문이 아닙니다.</li>
+      <li>지난 시그널이 이렇게 움직였다고 앞으로도 그렇게 간다는 보장은 없어요.</li>
+      <li>사고팔지 말지, 그 결과까지 전부 본인 판단이고 본인 몫입니다.</li>
+      <li>국내에선 금융당국에 신고된 거래소를 쓰는 걸 권해요. 신고 안 된 해외 거래소는 문제가 생겨도 보호받기 어렵습니다.</li>
+    </ul>
+  </details>
 </footer>
 
 <dialog id="lb" class="lb" aria-label="카드 크게 보기">
@@ -246,6 +256,6 @@
 
 <noscript><p class="noscript wrap">계산기와 상담 접수는 자바스크립트를 켜야 동작해요.</p></noscript>
 <script src="config.js"></script>
-<script src="app.js?v=c11030500"></script>
+<script src="app.js?v=c11030520"></script>
 </body>
 </html>
