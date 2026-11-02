@@ -429,3 +429,12 @@ body { padding-bottom: calc(58px + env(safe-area-inset-bottom)); }
 .go-live:active { background: #171c28; }
 .go-live:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { .go-live, .go-live .gl-ar { transition: none; } }
+
+/* 11/03 '텔레그램 채널 들어가기' (사용자 요청) — 위 '시그널 실시간으로 보기'와 같은 링크 줄, 아이콘만 텔레그램 */
+.home-cta { display: grid; gap: 10px; }
+.go-tg .tg-ic { display: grid; place-items: center; width: 30px; height: 30px; margin-left: -4px; border-radius: 50%; background: #229ED9; color: #fff; flex: none; }
+.go-tg .tg-ic svg { margin-left: -2px; }
+
+/* 11/03 시그널 탭도 다른 탭과 같은 머리 틀: 눈썹 '시그널' + '오늘 HOT 시그널'(24) + 창 라벨(13). HOT 카드는 머리 아래 16px */
+.hot .hot-c { margin-top: 16px; }
+.hot-win { white-space: nowrap; text-wrap: nowrap; }
