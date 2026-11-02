@@ -32,7 +32,7 @@
 </script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="style.css?v=1102c">
+<link rel="stylesheet" href="style.css?v=1103u">
 </head>
 <body>
 <svg width="0" height="0" class="sprite" aria-hidden="true" focusable="false">
@@ -55,9 +55,11 @@
 </nav>
 
 <main>
-  <!-- ✨ 시그널 (첫 화면): 카드 목록 + 실시간 버튼 -->
+  <!-- ✨ 시그널 (첫 화면): 탭 머리(눈썹 · 제목 · 창 라벨) + 막대 + 카드 + 실시간 버튼
+       제목·창 라벨(.sig-head)은 build_site.py 가 SIGNALS 표시 사이에 그림 — 눈썹만 여기(표시 밖)에 둬서 build_site.py 는 그대로 -->
   <section class="tab" id="tab-signals" data-tab="signals" aria-labelledby="signals-title">
     <div class="signals wrap">
+    <p class="th-ey">시그널</p>
 <!-- SIGNALS:BEGIN -->
     <div class="sig-head"><h2 id="signals-title">어제 ATH 지표별 1등 시그널</h2><span class="win">11월 1일 22:02 ~ 11월 2일 22:02</span></div>
     <ol class="ib" aria-label="지표별 1등 시그널의 4시간 최대 움직임">
@@ -77,25 +79,28 @@
 <!-- SIGNALS:END -->
     </div>
     <div class="home-cta wrap">
-      <a class="btn-zetro" href="https://ath.zetro.io/" target="_blank" rel="noopener">
+      <a class="btn-primary" href="https://ath.zetro.io/" target="_blank" rel="noopener">
         <span class="bz-t">시그널 실시간으로 보기</span>
         <span class="bz-s">ath.zetro.io</span>
       </a>
     </div>
   </section>
 
-  <!-- 🧮 계산기: 물타기 · 본전까지 · 청산가 (포지션 크기·펀딩비·연패는 _보관\계산기3개_… 에) -->
-  <!-- 2. 계산기: A3 '진짜 LCD 계산기' (2026-11-02) — 액정(결과) · 레지스터 칸(진짜 input, 폰 키보드 대신 키패드) · 기능 키 · 4×4 키패드
-       칸·계산은 예전과 같음: 물타기(지금 평단·수량·추가 가격·수량) / 본전까지(손실률) / 청산가(진입가·레버리지·유지증거금률). 예전 판 = _보관\계산기_카드탭판_1102 -->
+  <!-- 🧮 계산기: 물타기 · 본전까지 · 청산가 (포지션 크기·펀딩비·연패는 _보관\계산기3개_… 에)
+       2026-11-03 통일판 — A3 구조(큰 숫자 화면 · 칸 4개 · 모드·롱숏 · 4×4 키패드 · 폰 키보드 안 뜸)는 그대로, 겉만 사이트 카드로:
+       카드(bg2) 안 어두운 숫자 패널(흰 7세그먼트) · 입력칸 = 상담소 칸과 같은 부품 · 모드 3칸/롱숏 2칸 = 같은 세그먼트 · 평평한 키 · 금색 = '다음' 하나
+       칸·계산·주소(#calc-avg 등)·예시→실제 전환은 예전과 같음. 예전 판 = _보관\계산기_카드탭판_1102 · A3 판 = 11/2 공개본 -->
   <section class="tab calc" id="tab-calc" data-tab="calc" aria-labelledby="calc-title">
     <div class="wrap">
-      <h2 id="calc-title" class="sr-only">계산기</h2>
-      <div class="dev a3" id="calcdev" data-mode="avg" data-side="long">
-        <div class="bezel" aria-hidden="true"><div class="lcd">
-          <div class="l1"><span class="st" id="lcd-l1">물타기 · 롱</span><span class="extag" id="lcd-ex">예시</span></div>
+      <p class="th-ey">계산기</p>
+      <h2 id="calc-title" class="th-t">물타기 · 본전 · 청산가</h2>
+      <p class="th-d">수수료·펀딩비 빼고 계산</p>
+      <div class="dev" id="calcdev" data-mode="avg" data-side="long">
+        <div class="lcd" aria-hidden="true">
+          <div class="l1"><span class="st" id="lcd-l1">물타기 · 롱</span><span class="chip" id="lcd-ex">예시</span></div>
           <div class="l2"><span class="lab" id="lcd-lab">새 평단</span><span class="num" id="lcd-num"><span class="gh" id="lcd-gh">88.88</span><span class="v" id="lcd-v">90.00</span></span></div>
-          <div class="l3"><span class="lab" id="lcd-k3">본전까지</span><span class="be" id="lcd-v3">+12.5%</span></div>
-        </div></div>
+          <div class="l3"><span class="lab" id="lcd-k3">본전까지</span><span class="be up" id="lcd-v3">+12.5%</span></div>
+        </div>
         <div class="rgs" id="avg" role="tabpanel" aria-labelledby="t-avg">
           <label class="rg on"><span class="rl">지금 평단</span><input class="rv" type="text" inputmode="none" enterkeyhint="next" data-num data-k="p1" maxlength="20" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="100"></label>
           <label class="rg"><span class="rl">지금 수량</span><input class="rv" type="text" inputmode="none" enterkeyhint="next" data-num data-k="q1" maxlength="20" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="10"></label>
@@ -115,30 +120,45 @@
         </div>
         <div class="fn">
           <div class="modes" role="tablist" aria-label="계산기 고르기">
-            <button type="button" class="m" role="tab" id="t-avg" aria-controls="avg" aria-selected="true"><i class="led" aria-hidden="true"></i><span>물타기</span></button>
-            <button type="button" class="m" role="tab" id="t-breakeven" aria-controls="breakeven" aria-selected="false" tabindex="-1"><i class="led" aria-hidden="true"></i><span>본전까지</span></button>
-            <button type="button" class="m" role="tab" id="t-liq" aria-controls="liq" aria-selected="false" tabindex="-1"><i class="led" aria-hidden="true"></i><span>청산가</span></button>
+            <button type="button" class="m" role="tab" id="t-avg" aria-controls="avg" aria-selected="true"><span>물타기</span></button>
+            <button type="button" class="m" role="tab" id="t-breakeven" aria-controls="breakeven" aria-selected="false" tabindex="-1"><span>본전까지</span></button>
+            <button type="button" class="m" role="tab" id="t-liq" aria-controls="liq" aria-selected="false" tabindex="-1"><span>청산가</span></button>
           </div>
-          <button type="button" class="sw" id="calc-side" role="switch" aria-checked="false" aria-label="롱 / 숏 (켜면 숏)"><span class="sw-t" aria-hidden="true"><b>롱</b><b>숏</b></span><span class="slot" aria-hidden="true"><span class="knob"></span></span></button>
+          <button type="button" class="sw" id="calc-side" role="switch" aria-checked="false" aria-label="롱 / 숏 (켜면 숏)"><span data-v="long" aria-hidden="true">롱</span><span data-v="short" aria-hidden="true">숏</span></button>
         </div>
         <div class="pad" role="group" aria-label="키패드">
           <button type="button" class="k n" data-key="7">7</button><button type="button" class="k n" data-key="8">8</button><button type="button" class="k n" data-key="9">9</button><button type="button" class="k f" data-key="C" aria-label="칸 비우기">C</button>
           <button type="button" class="k n" data-key="4">4</button><button type="button" class="k n" data-key="5">5</button><button type="button" class="k n" data-key="6">6</button><button type="button" class="k f" data-key="bs" aria-label="한 글자 지우기">⌫</button>
           <button type="button" class="k n" data-key="1">1</button><button type="button" class="k n" data-key="2">2</button><button type="button" class="k n" data-key="3">3</button><button type="button" class="k f" data-key="00">00</button>
-          <button type="button" class="k n" data-key="0">0</button><button type="button" class="k n" data-key="." aria-label="소수점">.</button><button type="button" class="k f" data-key="prev" aria-label="이전 칸">이전</button><button type="button" class="k go" data-key="next" aria-label="다음 칸">다음</button>
+          <button type="button" class="k n" data-key="0">0</button><button type="button" class="k n" data-key="." aria-label="소수점">.</button><button type="button" class="k f w" data-key="prev" aria-label="이전 칸">이전</button><button type="button" class="k go w" data-key="next" aria-label="다음 칸">다음</button>
         </div>
       </div>
-      <p class="calc-note" data-note="avg">수수료·펀딩비 빼고 계산</p>
       <p class="calc-note" data-note="breakeven" hidden>−10% → +11.1% · −50% → +100% · −80% → +400%</p>
       <p class="calc-note" data-note="liq" hidden>거래소·코인·구간마다 달라요 · 대략값</p>
     </div>
   </section>
 
-  <!-- 🙋 상담소: 필수 4칸(코인·롱/숏·평단·별명) + 더 적기(레버리지·고민) + 내 답 찾기(같은 탭에서 펼침) -->
+  <!-- 🙋 상담소 v2 '답변 사례 먼저' (11/2 시안 → 11/3 통일판에 넣음): 탭 머리 → 예시 답변 카드 가로 넘김 → '나도 물린 거 있음' 칸 4개 + 더 적기 → 형한테 보내기 → 내 답 왔나 보기
+       칸 이름·id·별명 규칙·honeypot·1분 막기 = 예전 접수 폼 그대로(app.js). 예시 카드 = 11/2 23:45 실제 답글 그림(img/consult_ex_*.png) — 질문자 줄만 예시('예시' 칩) -->
   <section class="tab consult" id="tab-consult" data-tab="consult" aria-labelledby="consult-title">
     <div class="wrap">
-      <h1 id="consult-title" class="c-title">물린 코인,<br>익명으로 차트 봐 드림</h1>
-      <p class="c-sub">이름·연락처 안 받음 · 답은 스레드에 익명으로</p>
+      <p class="th-ey">익명 코인 고민 상담소</p>
+      <h1 id="consult-title" class="th-t">물린 코인,<br>이렇게 봐 줌</h1>
+      <p class="th-d">이름·연락처 안 받음 · 답은 스레드에 별명으로</p>
+      <p class="cases-meta" id="cases-meta">예시 · 11/2 23:45 실제 차트</p>
+      <div class="cases" id="cases" aria-labelledby="cases-meta">
+        <article class="case">
+          <p class="case-q"><span class="chip">예시</span><span>SOL 롱 · 평단 98.4</span></p>
+          <a class="case-img" href="img/consult_ex_sol.png" data-cap="예시 · SOL 롱 · 평단 98.4"><img src="img/consult_ex_sol.png" alt="SOL 답 그림 — 5분봉 최근 24시간, 새벽 4:05 금색 시그널, 위 띠까지 11.3%" width="1080" height="1350"></a>
+          <p class="case-a"><b>SOL 오늘 새벽 4시 5분에 금색 시그널 떴음</b>지금은 위 띠까지 11.3% 남음</p>
+        </article>
+        <article class="case">
+          <p class="case-q"><span class="chip">예시</span><span>ETH 롱 · 평단 2,450</span></p>
+          <a class="case-img" href="img/consult_ex_eth.png" data-cap="예시 · ETH 롱 · 평단 2,450"><img src="img/consult_ex_eth.png" alt="ETH 답 그림 — 5분봉 최근 24시간, 시그널 없음, 아래 띠까지 5.7%" width="1080" height="1350"></a>
+          <p class="case-a"><b>ETH 최근 24시간엔 시그널 없음</b>가장 가까운 띠는 아래 5.7%</p>
+        </article>
+      </div>
+      <h2 class="sec-t">나도 물린 거 있음</h2>
       <form id="cf" class="cf" novalidate autocomplete="off">
         <div class="row2">
           <div class="field">
@@ -156,7 +176,7 @@
         <div class="row2">
           <div class="field">
             <label for="cf-avg">평단</label>
-            <input id="cf-avg" name="avg" type="text" inputmode="decimal" data-num maxlength="24" placeholder="예: 182.5" required>
+            <input id="cf-avg" name="avg" type="text" inputmode="decimal" data-num maxlength="24" placeholder="예: 98.4" required>
           </div>
           <div class="field">
             <label for="cf-nick">별명 <small>답 찾을 때</small></label>
@@ -183,10 +203,10 @@
         </div>
         <p class="cf-closed" id="cf-closed" hidden>지금은 접수 준비 중이에요. 곧 열어요.</p>
         <p class="cf-msg" id="cf-msg" role="status" aria-live="polite"></p>
-        <button type="submit" class="btn-primary" id="cf-submit">익명으로 보내기</button>
+        <button type="submit" class="btn-primary" id="cf-submit">형한테 보내기</button>
       </form>
       <details class="find" id="find">
-        <summary>내 답 찾기 →</summary>
+        <summary>내 답 왔나 보기 <i aria-hidden="true">→</i></summary>
         <form id="af" class="af" role="search" autocomplete="off">
           <label class="sr-only" for="af-nick">별명</label>
           <input id="af-nick" type="text" maxlength="16" placeholder="접수 때 쓴 별명" autocorrect="off" autocapitalize="off" spellcheck="false">
@@ -198,8 +218,9 @@
   </section>
 </main>
 
+<!-- 바닥 한 줄: 탭마다 붙는 말만 다름 (상담소 = 사연 많으면 골라서 답함 · 계산기 = 계산은 참고용) -->
 <footer class="foot wrap">
-  <p class="disclaimer">투자 권유 아님 · 계산은 참고용</p>
+  <p class="disclaimer"><span class="d-consult">사연 많으면 골라서 답함 · </span>투자 권유 아님<span class="d-calc"> · 계산은 참고용</span></p>
 </footer>
 
 <dialog id="lb" class="lb" aria-label="카드 크게 보기">
@@ -210,6 +231,6 @@
 
 <noscript><p class="noscript wrap">계산기와 상담 접수는 자바스크립트를 켜야 동작해요.</p></noscript>
 <script src="config.js"></script>
-<script src="app.js?v=1102c"></script>
+<script src="app.js?v=1103u"></script>
 </body>
 </html>

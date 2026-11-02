@@ -1,4 +1,4 @@
-/* 차트보는형 도구함 — 계산기 6개 · 익명 상담 폼 · 카드 크게 보기
+/* 차트보는형 도구함 — 계산기 3개(물타기·본전까지·청산가 + 보관 3개 식) · 익명 상담 폼 · 카드 크게 보기 (2026-11-03 디자인 통일판)
    외부 추적기 없음. 이 파일은 서버에 아무것도 저장하지 않고, 상담 폼만 CONSULT_ENDPOINT(config.js)로 보낸다. */
 (function () {
   'use strict';
@@ -297,6 +297,8 @@
       if (ok) { el.k3.textContent = k3; el.v3.textContent = res.v3; }
       else if (res && res.msg) { el.k3.textContent = res.msg; el.v3.textContent = ''; }
       else { el.k3.textContent = k3; el.v3.textContent = '\u2014'; }
+      var t3 = el.v3.textContent;                         // 둘째 줄 값 = 방향 색 (+ 오름 = 금색 · − 내림 = 보라 · 그 밖 = 흰)
+      el.v3.className = 'be' + (/^\+/.test(t3) ? ' up' : /^[\u2212-]\d/.test(t3) ? ' dn' : '');
     };
     var calc = function () {
       var p = groups[mode], ex = pristine(mode), t = exOf(mode);
@@ -372,9 +374,11 @@
       b.addEventListener('mousedown', function (e) { e.preventDefault(); });   // 키를 눌러도 칸 선택(포커스) 유지
       b.addEventListener('click', function () { press(b.getAttribute('data-key')); });
     });
-    sideBtn.addEventListener('click', function () {
+    sideBtn.addEventListener('click', function (e) {     // 롱|숏 2칸: 누른 칸으로(이미 그 칸이면 그대로) · 키보드·스크립트 click 은 바꾸기
       if (sideBtn.disabled) return;
-      var s = sideOf() === 'long' ? 'short' : 'long';
+      var hit = e && e.target && e.target.closest ? e.target.closest('[data-v]') : null;
+      var s = hit ? hit.getAttribute('data-v') : (sideOf() === 'long' ? 'short' : 'long');
+      if (s === sideOf()) return;
       dev.setAttribute('data-side', s);
       sideBtn.setAttribute('aria-checked', s === 'short' ? 'true' : 'false');
       calc();
@@ -556,7 +560,7 @@
       markSent();
       form.reset();
       count.textContent = '0';
-      say('접수됐어요 \u2705\n답은 1~2일 안에 스레드 @charthyung과 이 페이지 \'내 답 찾기\'에 올라와요. '
+      say('접수됐어요\n답은 스레드 @charthyung과 이 페이지 \'내 답 왔나 보기\'에 올라와요. '   // 확인 표시는 CSS(.cf-msg.ok::before)
         + '별명 \'' + nick + '\'' + josaRo(nick) + ' 찾으세요. (사연이 많으면 골라서 답해요)', 'ok');
       rememberNick(nick);
     };
@@ -695,7 +699,7 @@
       if (ANSWERS === null) { ansRes.appendChild(mk('p', 'ans-msg', '답변을 불러오는 중이에요. 잠시 뒤 다시 눌러 주세요.')); return; }
       var hits = ANSWERS.filter(function (a) { return a.key === key; });
       if (!hits.length) {
-        ansRes.appendChild(mk('p', 'ans-msg', '\'' + cleanNick(q) + '\' 답은 아직 없어요. 답은 1~2일 안에 올라와요(사연이 많으면 골라서 답해요).'));
+        ansRes.appendChild(mk('p', 'ans-msg', '\'' + cleanNick(q) + '\' 답은 아직 없어요. 사연이 많으면 골라서 답해요.'));
         return;
       }
       ansRes.appendChild(mk('p', 'ans-msg', '\'' + cleanNick(q) + '\' 답 ' + hits.length + '개'));
@@ -750,7 +754,7 @@
   var lb = $('#lb'), lbImg = $('#lb-img'), lbCap = $('#lb-cap');
   if (lb && lbImg && typeof lb.showModal === 'function') {
     document.addEventListener('click', function (e) {
-      var a = e.target && e.target.closest ? e.target.closest('a.sig-thumb[href], a.sig-chip[href], a.ans-thumb[href]') : null;
+      var a = e.target && e.target.closest ? e.target.closest('a.sig-thumb[href], a.sig-chip[href], a.ans-thumb[href], a.case-img[href]') : null;
       if (!a) return;
       e.preventDefault();
       var im = $('img', a);
