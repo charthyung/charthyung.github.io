@@ -438,3 +438,7 @@ body { padding-bottom: calc(58px + env(safe-area-inset-bottom)); }
 /* 11/03 시그널 탭도 다른 탭과 같은 머리 틀: 눈썹 '시그널' + '오늘 HOT 시그널'(24) + 창 라벨(13). HOT 카드는 머리 아래 16px */
 .hot .hot-c { margin-top: 16px; }
 .hot-win { white-space: nowrap; text-wrap: nowrap; }
+
+/* 11/03 HOT 카드 코인 옆 지표 이름 */
+.tc-cw { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
+.tc-ind { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 700; color: var(--sub); white-space: nowrap; text-wrap: nowrap; }
