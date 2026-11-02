@@ -39,55 +39,32 @@
 
 <main>
   <!-- 1. 익명 코인 고민상담소 -->
-  <section id="consult" class="consult wrap" aria-labelledby="consult-title">
-    <p class="eyebrow">익명 코인 고민상담소</p>
-    <h1 id="consult-title">물린 코인,<br>익명으로 차트 봐 드림</h1>
-    <ul class="promise">
-      <li>이름·연락처 안 받음</li>
-      <li>고른 사연은 스레드에 익명으로 답함</li>
-    </ul>
-
-    <form id="cf" class="cf" novalidate autocomplete="off">
-      <div class="row2">
-        <div class="field">
-          <label for="cf-coin">코인</label>
-          <input id="cf-coin" name="coin" type="text" inputmode="text" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="20" placeholder="예: SOL" required>
-        </div>
-        <div class="field">
-          <span class="label" id="cf-side-label">롱 / 숏</span>
-          <div class="seg" role="radiogroup" aria-labelledby="cf-side-label">
-            <label><input type="radio" name="side" value="long"><span>롱</span></label>
-            <label><input type="radio" name="side" value="short"><span>숏</span></label>
-          </div>
-        </div>
-      </div>
-      <div class="row2">
-        <div class="field">
-          <label for="cf-avg">평단</label>
-          <input id="cf-avg" name="avg" type="text" inputmode="decimal" data-num maxlength="24" placeholder="예: 182.5" required>
-        </div>
-        <div class="field">
-          <label for="cf-lev">레버리지 <small>선택</small></label>
-          <div class="suffix"><input id="cf-lev" name="lev" type="text" inputmode="decimal" data-num maxlength="6" placeholder="예: 10"><span aria-hidden="true">배</span></div>
-        </div>
-      </div>
-      <div class="field">
-        <label for="cf-note">고민 한 줄 <small>선택</small></label>
-        <textarea id="cf-note" name="note" rows="2" maxlength="200" placeholder="예: 반등 나올 자리가 있는지 궁금함"></textarea>
-        <div class="count" aria-hidden="true"><span id="cf-count">0</span> / 200</div>
-      </div>
-      <div class="hp" aria-hidden="true">
-        <label for="cf-website">이 칸은 비워 두세요</label>
-        <input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off">
-      </div>
-      <p class="cf-closed" id="cf-closed" hidden>지금은 접수 준비 중이에요. 곧 열어요.</p>
-      <p class="cf-msg" id="cf-msg" role="status" aria-live="polite"></p>
-      <button type="submit" class="btn-primary" id="cf-submit">익명으로 보내기</button>
-    </form>
-    <p class="fine">차트에 뜬 것만 보여 드려요. 매수·매도 추천 아님.</p>
-  </section>
 
   <!-- 2. 계산기 6개 -->
+  <section id="signals" class="signals wrap" aria-labelledby="signals-title">
+<!-- SIGNALS:BEGIN -->
+    <h2 id="signals-title">이번 주 시그널 잘 뜬 코인</h2>
+    <ol class="sig-list">
+      <li class="sig">
+        <a class="sig-thumb" href="img/sig_WLD_1793319300_a9f9e0b8.png"><img src="img/sig_WLD_1793319300_a9f9e0b8_t.jpg" width="72" height="90" alt="WLD 5분봉 차트 — 금색 시그널 뒤 4시간 최대 ↑7.7%" loading="lazy" decoding="async"></a>
+        <div class="sig-main"><strong class="sig-coin">WLD</strong><span class="sig-kind gold">금색 시그널 <time datetime="2026-10-30T09:15+09:00">· 10/30</time></span></div>
+        <p class="sig-num gold" aria-label="4시간 안 최대 상승 7.7%"><span aria-hidden="true">↑7.7%</span><small aria-hidden="true">4시간 최대</small></p>
+      </li>
+      <li class="sig">
+        <a class="sig-thumb" href="img/sig_UNI_1793289900_b6a47f30.png"><img src="img/sig_UNI_1793289900_b6a47f30_t.jpg" width="72" height="90" alt="UNI 5분봉 차트 — 보라 시그널 뒤 4시간 최대 ↓6.6%" loading="lazy" decoding="async"></a>
+        <div class="sig-main"><strong class="sig-coin">UNI</strong><span class="sig-kind purple">보라 시그널 <time datetime="2026-10-30T01:05+09:00">· 10/30</time></span></div>
+        <p class="sig-num purple" aria-label="4시간 안 최대 하락 6.6%"><span aria-hidden="true">↓6.6%</span><small aria-hidden="true">4시간 최대</small></p>
+      </li>
+      <li class="sig">
+        <a class="sig-thumb" href="img/sig_NEAR_1793136600_23aacc2e.png"><img src="img/sig_NEAR_1793136600_23aacc2e_t.jpg" width="72" height="90" alt="NEAR 5분봉 차트 — 보라 시그널 뒤 4시간 최대 ↓3.1%" loading="lazy" decoding="async"></a>
+        <div class="sig-main"><strong class="sig-coin">NEAR</strong><span class="sig-kind purple">보라 시그널 <time datetime="2026-10-28T06:30+09:00">· 10/28</time></span></div>
+        <p class="sig-num purple" aria-label="4시간 안 최대 하락 3.1%"><span aria-hidden="true">↓3.1%</span><small aria-hidden="true">4시간 최대</small></p>
+      </li>
+    </ol>
+    <p class="sig-foot">시그널 뜬 뒤 4시간 안 최대 움직임 · 모든 시그널이 이렇게 가진 않음 · 11월 2일 스레드에 올린 것</p>
+<!-- SIGNALS:END -->
+  </section>
+
   <section id="calc" class="calc wrap" aria-labelledby="calc-title">
     <h2 id="calc-title">계산기</h2>
     <p class="sec-sub">숫자만 넣으면 바로 계산돼요.</p>
@@ -211,28 +188,53 @@
   </section>
 
   <!-- 3. 이번 주 시그널 잘 뜬 코인 (build_site.py 가 아래 표시 사이를 채움 — 손으로 고치지 말 것) -->
-  <section id="signals" class="signals wrap" aria-labelledby="signals-title">
-<!-- SIGNALS:BEGIN -->
-    <h2 id="signals-title">이번 주 시그널 잘 뜬 코인</h2>
-    <ol class="sig-list">
-      <li class="sig">
-        <a class="sig-thumb" href="img/sig_WLD_1793319300_a9f9e0b8.png"><img src="img/sig_WLD_1793319300_a9f9e0b8_t.jpg" width="72" height="90" alt="WLD 5분봉 차트 — 금색 시그널 뒤 4시간 최대 ↑7.7%" loading="lazy" decoding="async"></a>
-        <div class="sig-main"><strong class="sig-coin">WLD</strong><span class="sig-kind gold">금색 시그널 <time datetime="2026-10-30T09:15+09:00">· 10/30</time></span></div>
-        <p class="sig-num gold" aria-label="4시간 안 최대 상승 7.7%"><span aria-hidden="true">↑7.7%</span><small aria-hidden="true">4시간 최대</small></p>
-      </li>
-      <li class="sig">
-        <a class="sig-thumb" href="img/sig_UNI_1793289900_b6a47f30.png"><img src="img/sig_UNI_1793289900_b6a47f30_t.jpg" width="72" height="90" alt="UNI 5분봉 차트 — 보라 시그널 뒤 4시간 최대 ↓6.6%" loading="lazy" decoding="async"></a>
-        <div class="sig-main"><strong class="sig-coin">UNI</strong><span class="sig-kind purple">보라 시그널 <time datetime="2026-10-30T01:05+09:00">· 10/30</time></span></div>
-        <p class="sig-num purple" aria-label="4시간 안 최대 하락 6.6%"><span aria-hidden="true">↓6.6%</span><small aria-hidden="true">4시간 최대</small></p>
-      </li>
-      <li class="sig">
-        <a class="sig-thumb" href="img/sig_NEAR_1793136600_23aacc2e.png"><img src="img/sig_NEAR_1793136600_23aacc2e_t.jpg" width="72" height="90" alt="NEAR 5분봉 차트 — 보라 시그널 뒤 4시간 최대 ↓3.1%" loading="lazy" decoding="async"></a>
-        <div class="sig-main"><strong class="sig-coin">NEAR</strong><span class="sig-kind purple">보라 시그널 <time datetime="2026-10-28T06:30+09:00">· 10/28</time></span></div>
-        <p class="sig-num purple" aria-label="4시간 안 최대 하락 3.1%"><span aria-hidden="true">↓3.1%</span><small aria-hidden="true">4시간 최대</small></p>
-      </li>
-    </ol>
-    <p class="sig-foot">시그널 뜬 뒤 4시간 안 최대 움직임 · 모든 시그널이 이렇게 가진 않음 · 11월 2일 스레드에 올린 것</p>
-<!-- SIGNALS:END -->
+
+  <section id="consult" class="consult wrap" aria-labelledby="consult-title">
+    <p class="eyebrow">익명 코인 고민상담소</p>
+    <h1 id="consult-title">물린 코인,<br>익명으로 차트 봐 드림</h1>
+    <ul class="promise">
+      <li>이름·연락처 안 받음</li>
+      <li>고른 사연은 스레드에 익명으로 답함</li>
+    </ul>
+
+    <form id="cf" class="cf" novalidate autocomplete="off">
+      <div class="row2">
+        <div class="field">
+          <label for="cf-coin">코인</label>
+          <input id="cf-coin" name="coin" type="text" inputmode="text" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="20" placeholder="예: SOL" required>
+        </div>
+        <div class="field">
+          <span class="label" id="cf-side-label">롱 / 숏</span>
+          <div class="seg" role="radiogroup" aria-labelledby="cf-side-label">
+            <label><input type="radio" name="side" value="long"><span>롱</span></label>
+            <label><input type="radio" name="side" value="short"><span>숏</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="cf-avg">평단</label>
+          <input id="cf-avg" name="avg" type="text" inputmode="decimal" data-num maxlength="24" placeholder="예: 182.5" required>
+        </div>
+        <div class="field">
+          <label for="cf-lev">레버리지 <small>선택</small></label>
+          <div class="suffix"><input id="cf-lev" name="lev" type="text" inputmode="decimal" data-num maxlength="6" placeholder="예: 10"><span aria-hidden="true">배</span></div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="cf-note">고민 한 줄 <small>선택</small></label>
+        <textarea id="cf-note" name="note" rows="2" maxlength="200" placeholder="예: 반등 나올 자리가 있는지 궁금함"></textarea>
+        <div class="count" aria-hidden="true"><span id="cf-count">0</span> / 200</div>
+      </div>
+      <div class="hp" aria-hidden="true">
+        <label for="cf-website">이 칸은 비워 두세요</label>
+        <input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off">
+      </div>
+      <p class="cf-closed" id="cf-closed" hidden>지금은 접수 준비 중이에요. 곧 열어요.</p>
+      <p class="cf-msg" id="cf-msg" role="status" aria-live="polite"></p>
+      <button type="submit" class="btn-primary" id="cf-submit">익명으로 보내기</button>
+    </form>
+    <p class="fine">차트에 뜬 것만 보여 드려요. 매수·매도 추천 아님.</p>
   </section>
 </main>
 
