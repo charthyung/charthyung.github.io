@@ -358,3 +358,10 @@ body { padding-bottom: calc(58px + env(safe-area-inset-bottom)); }
   html { scroll-behavior: auto; }
   * { transition: none !important; }
 }
+
+/* 상담소 예시·답변 카드: 넓은 화면(600+)에선 가로 넘김 대신 칸 폭을 꽉 채우는 같은 폭 칸 — 오른쪽 끝이 아래 입력칸과 맞게 (11/3 사용자 '여백·줄이 안 맞음') */
+@media (min-width: 600px) {
+  .cases { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); margin: 0; padding: 0; overflow: visible; }
+  .cases::after { display: none; }
+  .case { flex: none; }
+}
