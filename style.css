@@ -239,6 +239,45 @@ html { scroll-behavior: smooth; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
+/* ══ 시그널 탭: 어제 ATH 지표별 1등 시그널 (build_site.py 가 signals_daily.json 으로 그림) ══ */
+.sig-head { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; }
+.sig-head .win { font-size: 12px; font-weight: 700; color: var(--faint); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ib { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 4px; }
+.ib-row { display: grid; grid-template-columns: 78px minmax(0, 1fr) auto; align-items: center; gap: 0 12px; min-height: 56px; padding: 6px 10px; border-radius: 12px; border: 1px solid transparent; }
+.ib-row.first { background: var(--bg2); border-color: var(--line2); }
+.ib-name { font-size: 14px; font-weight: 700; color: var(--sub); white-space: nowrap; text-wrap: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ib-row.first .ib-name { color: var(--text); }
+.ib-mid { display: grid; gap: 4px; min-width: 0; }
+.ib-coin { font-size: 13px; font-weight: 800; color: var(--text); white-space: nowrap; text-wrap: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.1; }
+.ib-track { display: block; height: 10px; border-radius: 5px; background: rgba(255, 255, 255, .06); overflow: hidden; }
+.ib-bar { display: block; width: var(--w); height: 100%; border-radius: 5px; transform-origin: left center; animation: ib-grow .6s cubic-bezier(.2, .7, .2, 1) both; }
+.ib-bar.gold { background: linear-gradient(90deg, rgba(245, 196, 81, .45), var(--gold)); }
+.ib-bar.purple { background: linear-gradient(90deg, rgba(167, 139, 250, .45), var(--purple)); }
+.ib.done .ib-bar { animation: none; }
+.ib-n { font-size: 11px; font-weight: 700; color: var(--faint); white-space: nowrap; text-wrap: nowrap; line-height: 1.1; }
+.ib-pct { min-width: 60px; text-align: right; font-size: 19px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; white-space: nowrap; text-wrap: nowrap; }
+.ib-row.first .ib-pct { font-size: 23px; }
+.ib-row.none .ib-name, .ib-empty { color: #4d5361; }
+.ib-empty { font-size: 13px; font-weight: 700; white-space: nowrap; text-wrap: nowrap; }
+@keyframes ib-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.tcards { display: grid; gap: 10px; margin-top: 18px; }
+.tc { min-width: 0; padding: 12px 14px 8px; border-radius: 14px; border: 1px solid var(--line); background: var(--bg2); }
+.tc-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0 12px; }   /* 긴 코인 + 큰 % 면 % 가 아랫줄로 (잘리지 않게) */
+.tc-coin { display: block; min-width: 0; font-size: 18px; font-weight: 800; line-height: 1.2; white-space: nowrap; text-wrap: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tc-sub { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 10px; margin: 2px 0 0; font-size: 12px; font-weight: 700; color: var(--faint); }
+.tc-meta { min-width: 0; white-space: nowrap; text-wrap: nowrap; }
+.tc-lab { flex: none; white-space: nowrap; text-wrap: nowrap; }
+.tc-pct { flex: none; margin: 0 0 0 auto; text-align: right; font-size: 22px; font-weight: 800; line-height: 1.15; letter-spacing: -.02em; font-variant-numeric: tabular-nums; white-space: nowrap; text-wrap: nowrap; }
+.tc-svg { display: block; width: 100%; height: auto; margin-top: 6px; }
+.tc-svg text { font-family: var(--font); }
+.miss { display: flex; align-items: center; gap: 8px; margin: 14px 0 0; font-size: 12px; color: var(--faint); }
+.miss span { min-width: 0; }
+.ib-none { margin: 6px 0 0; padding: 0 11px; font-size: 12px; font-weight: 700; color: #565c6a; }
+.miss-svg { flex: none; width: 56px; height: 18px; }
+.signals .sig-foot { margin: 8px 0 0; font-size: clamp(10px, 2.82vw, 11px); color: var(--faint); }   /* 390 에서 한 줄 */
+@media (prefers-reduced-motion: reduce) { .ib-bar { animation: none; } }
+@media (min-width: 720px) { .tcards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
 /* ══ 앱 탭 구조 ══ 폰 = 화면 아래 고정 탭바 · 넓은 화면(720+) = 머리줄 아래 탭. 보일 탭은 html[data-tab] 하나로 정함 */
 .js .tab { display: none; }
 .js[data-tab="signals"] #tab-signals, .js[data-tab="calc"] #tab-calc,

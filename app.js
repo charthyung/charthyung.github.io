@@ -547,6 +547,34 @@
     if (find) find.addEventListener('toggle', function () { if (find.open && !afNick.value) afNick.focus(); });
   }
 
+  /* ───────── 시그널 탭: 막대 자라기(CSS) + 숫자 올라가기 — 처음 한 번만, '움직임 줄이기' 설정이면 안 함 ───────── */
+  (function () {
+    var bars = $('.ib');
+    var nums = $$('#tab-signals [data-count]');
+    if (!bars) return;
+    var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    var shown = false;
+    var play = function () {
+      if (shown || document.documentElement.getAttribute('data-tab') !== 'signals') return;
+      shown = true;
+      setTimeout(function () { bars.classList.add('done'); }, 700);       // 다른 탭 갔다 와도 다시 안 자라게
+      if (reduce || !window.requestAnimationFrame) return;
+      var items = nums.map(function (el) {
+        return { el: el, v: parseFloat(el.getAttribute('data-count')), pre: el.getAttribute('data-pre') || '' };
+      }).filter(function (x) { return isFinite(x.v); });
+      var t0 = null;
+      var step = function (ts) {
+        if (t0 === null) t0 = ts;
+        var k = Math.min(1, (ts - t0) / 600), ease = 1 - Math.pow(1 - k, 3);
+        items.forEach(function (x) { x.el.textContent = x.pre + (x.v * ease).toFixed(1) + '%'; });
+        if (k < 1) window.requestAnimationFrame(step);
+      };
+      window.requestAnimationFrame(step);
+    };
+    play();
+    window.addEventListener('hashchange', play);
+  })();
+
   /* ───────── 시그널 카드 크게 보기 ───────── */
   var lb = $('#lb'), lbImg = $('#lb-img'), lbCap = $('#lb-cap');
   if (lb && lbImg && typeof lb.showModal === 'function') {
