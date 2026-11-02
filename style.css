@@ -442,3 +442,12 @@ body { padding-bottom: calc(58px + env(safe-area-inset-bottom)); }
 /* 11/03 HOT 카드 코인 옆 지표 이름 */
 .tc-cw { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
 .tc-ind { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 700; color: var(--sub); white-space: nowrap; text-wrap: nowrap; }
+
+/* 11/03 링크 줄 두 개 맞춤(사용자 '로고 위치·글씨 크기·문단 시작 다 맞춰'): 아이콘 칸 = 같은 32px 원, 글 시작 x 같음 */
+.go-live { padding-left: 14px; }
+.go-live .gl-ic { display: grid; place-items: center; flex: none; width: 32px; height: 32px; margin: 0; border-radius: 50%; }
+.go-live .gl-ic.st { background: var(--sel); }
+.go-live .gl-ic.st .stars { gap: 1px; }
+.go-live .gl-ic.st .stars svg { width: 11px; height: 11px; }
+.go-live .gl-ic.tg { background: #229ED9; color: #fff; }
+.go-live .gl-ic.tg svg { width: 17px; height: 17px; margin-left: -2px; }
