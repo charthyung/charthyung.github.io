@@ -397,15 +397,17 @@
   }
 
   /* ───────── 시그널 카드 크게 보기 ───────── */
-  var lb = $('#lb'), lbImg = $('#lb-img');
+  var lb = $('#lb'), lbImg = $('#lb-img'), lbCap = $('#lb-cap');
   if (lb && lbImg && typeof lb.showModal === 'function') {
     document.addEventListener('click', function (e) {
-      var a = e.target && e.target.closest ? e.target.closest('a.sig-thumb[href]') : null;
+      var a = e.target && e.target.closest ? e.target.closest('a.sig-thumb[href], a.sig-chip[href]') : null;
       if (!a) return;
       e.preventDefault();
       var im = $('img', a);
+      var cap = a.getAttribute('data-cap') || '';
       lbImg.src = a.getAttribute('href');
-      lbImg.alt = im ? im.alt : '';
+      lbImg.alt = im ? im.alt : cap;
+      if (lbCap) lbCap.textContent = cap;
       lb.showModal();
     });
     lb.addEventListener('click', function (e) { if (e.target === lb || e.target === lbImg) lb.close(); });

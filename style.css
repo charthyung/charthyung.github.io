@@ -56,8 +56,8 @@ h2 { margin: 0; font-size: 26px; line-height: 1.25; font-weight: 800; letter-spa
 .sec-sub { margin: 8px 0 0; font-size: 15px; color: var(--sub); }
 small { font-size: 13px; }
 
-/* ── 1. 상담소 ── */
-.consult { padding-top: 24px; padding-bottom: 56px; }
+/* ── 3. 상담소 (맨 아래) ── */
+.consult { padding-top: 48px; padding-bottom: 56px; border-top: 1px solid var(--line); }
 .promise { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 6px; font-size: 16px; color: var(--sub); }
 .promise li { display: flex; align-items: center; gap: 10px; }
 .promise li::before { content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
@@ -129,7 +129,7 @@ input::placeholder, textarea::placeholder { color: #575e6c; font-weight: 400; op
 .fine { margin: 14px 0 0; font-size: 13px; color: var(--faint); }
 
 /* ── 2. 계산기 ── */
-.calc, .signals { padding-top: 56px; padding-bottom: 56px; border-top: 1px solid var(--line); }
+.calc { padding-top: 56px; padding-bottom: 56px; border-top: 1px solid var(--line); }
 .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 24px; }
 .tabs [role="tab"] {
   height: 44px; padding: 0 4px; min-width: 0;
@@ -157,7 +157,31 @@ input::placeholder, textarea::placeholder { color: #575e6c; font-weight: 400; op
 .o-h.warn { color: var(--bad); }
 .note { margin: 14px 0 0; font-size: 13px; color: var(--faint); }
 
-/* ── 3. 시그널 ── */
+/* ── 1. 시그널: 폰 = 얇은 칩 한 줄 (넓은 화면은 아래 미디어쿼리에서 썸네일 목록) ── */
+.signals { padding-top: 8px; padding-bottom: 16px; }
+.sig-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.signals h2 { font-size: 15px; font-weight: 800; letter-spacing: -.01em; }
+.sig-head-r { flex: none; font-size: 12px; font-weight: 700; color: var(--faint); }
+/* 칩 폭 = 글자 길이만큼 + 남는 폭은 나눠 가짐 (같은 1/3 칸이면 NEAR 같은 이름이 줄바꿈됨) */
+.sig-chips { list-style: none; margin: 10px 0 0; padding: 0; display: flex; gap: 6px; }
+.sig-chips li { flex: 1 1 auto; min-width: 0; display: flex; }
+.sig-chip {
+  flex: 1 1 auto; min-width: 0;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  height: 42px; padding: 0 8px; border-radius: 21px;
+  border: 1px solid var(--line2); background: var(--bg2); color: var(--text); text-decoration: none;
+  font-size: clamp(13px, 3.8vw, 15px); font-weight: 800; font-variant-numeric: tabular-nums;
+}
+.sig-chip .c, .sig-chip .p { white-space: nowrap; text-wrap: nowrap; }   /* 전역 text-wrap: pretty 가 nowrap 을 덮어써서 직접 지정 */
+.sig-chip .c { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.sig-chip .p { flex: none; }
+.sig-chip.gold { border-color: rgba(245, 196, 81, .38); }
+.sig-chip.purple { border-color: rgba(167, 139, 250, .42); }
+.sig-chip.gold .p { color: var(--gold); }
+.sig-chip.purple .p { color: var(--purple); }
+a.sig-chip:active { background: #1a1e28; }
+.sig-foot-m { margin: 8px 0 0; font-size: 12px; color: var(--faint); }
+.sig-list, .sig-foot { display: none; }
 .sig-list { list-style: none; margin: 24px 0 0; padding: 0; }
 .sig { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 14px 0; border-top: 1px solid var(--line); }
 .sig:last-child { border-bottom: 1px solid var(--line); }
@@ -189,12 +213,44 @@ input::placeholder, textarea::placeholder { color: #575e6c; font-weight: 400; op
 /* ── 카드 크게 보기 ── */
 .lb { width: min(92vw, 520px); max-height: 92vh; padding: 0; border: 0; border-radius: 14px; background: var(--bg); color: var(--text); overflow: hidden; }
 .lb::backdrop { background: rgba(0, 0, 0, .78); }
-.lb img { display: block; width: 100%; height: auto; max-height: calc(92vh - 52px); object-fit: contain; background: #000; }
+.lb img { display: block; width: 100%; height: auto; max-height: calc(92vh - 100px); object-fit: contain; background: #000; }
+.lb-cap { margin: 0; padding: 12px 16px 14px; font-size: 14px; font-weight: 700; color: var(--text); }
+.lb-cap:empty { display: none; }
 .lb form { margin: 0; display: flex; justify-content: flex-end; }
 .lb-close { height: 52px; padding: 0 18px; border: 0; background: transparent; color: var(--sub); font-size: 15px; font-weight: 700; cursor: pointer; }
+.lb-close:focus-visible { outline-offset: -6px; }   /* 창 가장자리에 잘려 금색 막대로 보이지 않게 안쪽에 */
+
+/* 폰: 첫 화면(390×844 · 360×780)에 시그널 칩 + 물타기 입력 4칸 + 결과 2줄이 스크롤 없이 들어가게 */
+@media (max-width: 719px) {
+  .top { min-height: 52px; }
+  .calc { padding-top: 16px; padding-bottom: 44px; }
+  .calc > h2 { display: inline; font-size: 17px; }
+  .calc > .sec-sub { display: inline; margin: 0 0 0 8px; font-size: 13px; color: var(--faint); }
+  .tabs { margin-top: 12px; gap: 6px; }
+  .tabs [role="tab"] { height: 40px; font-size: 14px; }
+  .panel { margin-top: 14px; }
+  .desc { margin-bottom: 10px; font-size: 14px; }
+  .seg-side { height: 40px; max-width: 168px; margin-bottom: 12px; padding: 3px; }
+  .seg-side span { font-size: 15px; }
+  .grid2 { gap: 10px; }
+  .grid2 .field { gap: 6px; }
+  .grid2 .label { font-size: 13px; }
+  .panel input[type="text"] { height: 46px; font-size: 17px; }
+  .panel .suffix > span { height: 46px; }
+  .panel .sign { top: 4px; width: 38px; height: 38px; }
+  .out { margin-top: 12px; padding: 2px 14px; }
+  .o-row { padding: 9px 0; }
+  .o-v { font-size: clamp(21px, 6vw, 24px); }
+  .o-h { margin-top: 2px; font-size: 12px; }
+  .note { margin-top: 10px; font-size: 12px; }
+}
 
 @media (min-width: 720px) {
-  .consult { padding-top: 40px; }
+  .consult { padding-top: 56px; }
+  .signals { padding-top: 32px; padding-bottom: 56px; }
+  .signals h2 { font-size: 26px; }
+  .sig-head-r, .sig-chips, .sig-foot-m { display: none; }
+  .sig-list, .sig-foot { display: block; }
   .sig { grid-template-columns: 88px minmax(0, 1fr) auto; }
   .sig-thumb { width: 88px; height: 110px; }
 }
