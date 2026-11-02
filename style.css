@@ -488,9 +488,17 @@ body { padding-bottom: calc(58px + env(safe-area-inset-bottom)); }
   padding: 6px max(12px, env(safe-area-inset-left)) 6px max(12px, env(safe-area-inset-right));
   border-top: 0; border-bottom: 1px solid var(--line); border-radius: 0;
 }
-.tabbar a { flex-direction: row; gap: 6px; height: 40px; border-radius: 10px; font-size: 13px; color: var(--sub); }
-.tabbar .ti { font-size: 16px; }
-.tabbar a[aria-current="page"] { background: var(--text); color: var(--bg); }
+/* 11/03 새벽: 안 고른 탭이 테두리·바탕 없는 흐린 글자라 '세 개가 구분이 안 되고 처음 온 사람은 메뉴인지 모른다'는 지적
+   → 칸마다 바탕·테두리를 줘서 누르는 버튼 3개로 보이게, 이모지는 흑백·흐림을 풀어 색으로 구분, 글자도 밝게 */
+.tabbar { gap: 8px; }
+.tabbar a {
+  flex-direction: row; gap: 6px; height: 40px; border-radius: 10px; font-size: 14px; color: var(--text);
+  background: var(--field); border: 1px solid rgba(255, 255, 255, .16);
+}
+.tabbar .ti { font-size: 16px; filter: none; opacity: 1; }
+.tabbar a[aria-current="page"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+.tabbar a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+@media (hover: hover) { .tabbar a:not([aria-current="page"]):hover { border-color: rgba(255, 255, 255, .3); } }
 html { scroll-padding-bottom: 0; scroll-padding-top: 60px; }
 body { padding-bottom: env(safe-area-inset-bottom); }
 .signals, .calc > .wrap, .consult > .wrap { padding-top: 10px; }
